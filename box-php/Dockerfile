@@ -1,4 +1,4 @@
-FROM docker.io/alpine:3.8
+FROM docker.io/alpine:3.7
 
 ARG ELASTICMS_VERSION_ARG=""
 

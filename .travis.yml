@@ -1,7 +1,7 @@
 sudo: required
 language: php
 php:
-- '7.2'
+- '7.1'
 services:
 - docker
 stages:
@@ -14,10 +14,8 @@ jobs:
     - echo "Stage [build] - Step [script] ..."
     - rm src/composer.lock
     - composer -v install --no-interaction -d src/
-    - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/elasticms-web:latest
-      -f box-web/Dockerfile .
-    - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/elasticms-php:latest
-      -f box-php/Dockerfile .
+    - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/elasticms-web:latest -f box-web/Dockerfile .
+    - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/elasticms-php:latest -f box-php/Dockerfile .
     after_script:
     - echo "Stage [Build] - Step [after_script] ..."
     - docker images
