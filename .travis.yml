@@ -1,34 +1,40 @@
 sudo: required
 language: php
 php:
-  - '7.2'
+- '7.2'
 services:
-  - docker
+- docker
 stages:
-  - build
-  - aws-deploy
+- build
+- aws-deploy
 jobs:
   include:
   - stage: build
     script:
-      - echo "Stage [build] - Step [script] ..."
-      - rm src/composer.lock
-      - composer -v install --no-interaction -d src/
-      - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/phpinfo-web:latest -f box-web/Dockerfile .
-      - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/phpinfo-php:latest -f box-php/Dockerfile .
+    - echo "Stage [build] - Step [script] ..."
+    - rm src/composer.lock
+    - composer -v install --no-interaction -d src/
+    - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/phpinfo-web:latest
+      -f box-web/Dockerfile .
+    - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/phpinfo-php:latest
+      -f box-php/Dockerfile .
     after_script:
-      - echo "Stage [Build] - Step [after_script] ..."
-      - docker images
+    - echo "Stage [Build] - Step [after_script] ..."
+    - docker images
     after_success:
-      - echo "Stage [Build] - Step [after_success] ..."
-      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-      - docker push $DOCKER_USERNAME/phpinfo-web:latest
-      - docker push $DOCKER_USERNAME/phpinfo-php:latest
+    - echo "Stage [Build] - Step [after_success] ..."
+    - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+    - docker push $DOCKER_USERNAME/phpinfo-web:latest
+    - docker push $DOCKER_USERNAME/phpinfo-php:latest
   - stage: aws-deploy
     script:
-      - echo "Stage [aws-deploy] - Step [script] ..."
+    - echo "Stage [aws-deploy] - Step [script] ..."
     deploy:
       provider: script
       script: bash .aws/deploy.sh
       on:
         branch: master
+env:
+  global:
+  - secure: ZO2MiVw9L9EcLkQCJUpIQYWeSZeUXfBnkMROLz9kXs3J63jJMCi21vG4N8gnxCWyFLLEHFASJR1ssqJjbPRPsNmaasotfUjsntrEpRSH8bj/mULVdCxa56ecGu4Beda/vXcJPnNF2asTe0DJNRDuRq1TSmC+jRJUzIMXk16vf5Fpz+Jdva5a+Hi280EvI/UP0x5ejEwiHX17OyYfp1P5UcGd6naFy4+IZkjFeGLD4ODElyP6lwpO4fpfnPtCDiOoZQdWn0GAx+ZMR+y5vaJbL5rYZZjpOe5KpvmWHbs6p99DwHACYD2anmn/41qeXsCnziCag9VQQKAaKeOjNjunaqEV2X+P1ikNAOQhUk5YzwPI4v3GLM90AgqKTlW+qSZWuWUKQ5j1dgfNoxAgYjD2t2w4tfcM4O7eR6JqZW+NvlcrgGs4DO4Pzs7pDiwxJMtrZ256izEUkCvMyDAZ6e95tobR6c6PrnZtjxNxh1jIRruhe9ui3xjZJvwa/1p3yTU4BmbVE5Iu5MFy0WDexAyr4reBY/9RvM4bLEBIy5tzGTNq5uySzMYBHZCXPNGxR65szTSc+ABunU9OBgO4go/FpSnug23PMAIyN7yRAXBdlyNJFFz88twB12g3yhP3IcYd5bCwWIE45f072m0jeqV58OIzQT/aX/HrVi5nSPzwIB0=
+  - secure: PBQr38CgGq14ZDsmAOHHspmJrkI4YaqRTSoND61Ku0vdAi+TUiLVuIC0+hjfZfJ/Oo/tPhH/6VhlV87rlEwMxz09qxEk3CES//dvjxWlknAvMobgWQyAS4C6bKp/ZzmEHgO3AszolrIe4lxPpbowvX8vlhzWjDIJ4UJJNiIh7xYDeiBW/jCB9TUGmZUje1dc7KbmEc5oV5QoxhOhNe4XcHXcmuntlWDXk3yb7y5KnXcy8JpND0oWgSmXgbi7rK4S833QvkL9o8RVqBAT24RTtMcIsP6fJfKq2kdCBe/oVWge8MY5ZhbVEufvYWd8KTdLzI+Pnk+mzB4MHu/VqVjD0hMkB9D36U9WMbHBhgXbZ9yXoOabQYlnpCJ+MnjINKnjTeebr8U8cobjI4dSToJlRT/6XWrDZRBkPepN1MIcM9Q/Uf55QThOc0E6bpFhh/JFvXuxhHVlByDX0Jof+nfAIxCeLVNC/RZwQvYpudtvRwmmADNSGKtx6EUROQeR8qIPsgfpAkg9gRyK7JIPLk6n9oC/eKQYsVaqKh7UzDrioCxmJvKZNhfDoO5FYhE1cKbkAXUkMX0Nz6bTkE7nP6AxpDnT+RF7K0ZIhbPwIfeyQsbWfFQbgIyd+ZdRDAwvBjTKYBEX76puTgsn+WJrtp5OZOLKEXenDus31cinV8I5tvw=
