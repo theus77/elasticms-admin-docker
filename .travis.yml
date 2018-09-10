@@ -1,0 +1,34 @@
+sudo: required
+language: php
+php:
+  - '7.2'
+services:
+  - docker
+stages:
+  - build
+  - aws-deploy
+jobs:
+  include:
+  - stage: build
+    script:
+      - echo "Stage [build] - Step [script] ..."
+      - rm src/composer.lock
+      - composer -v install --no-interaction -d src/
+      - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/phpinfo-web:latest -f box-web/Dockerfile .
+      - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/phpinfo-php:latest -f box-php/Dockerfile .
+    after_script:
+      - echo "Stage [Build] - Step [after_script] ..."
+      - docker images
+    after_success:
+      - echo "Stage [Build] - Step [after_success] ..."
+      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      - docker push $DOCKER_USERNAME/phpinfo-web:latest
+      - docker push $DOCKER_USERNAME/phpinfo-php:latest
+  - stage: aws-deploy
+    script:
+      - echo "Stage [aws-deploy] - Step [script] ..."
+    deploy:
+      provider: script
+      script: bash .aws/deploy.sh
+      on:
+        branch: master

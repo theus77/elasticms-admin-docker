@@ -1,0 +1,13 @@
+#!/bin/bash
+
+sed -i 's/^Listen 80.*/Listen 8080/g' /etc/apache2/httpd.conf
+sed -i 's/^ServerTokens OS.*/ServerTokens Prod/g' /etc/apache2/httpd.conf
+sed -i 's/^LoadModule mpm_prefork_module modules\/mod_mpm_prefork.so.*/#LoadModule mpm_prefork_module modules\/mod_mpm_prefork.so/g' /etc/apache2/httpd.conf
+sed -i 's/^#LoadModule mpm_worker_module modules\/mod_mpm_worker.so.*/LoadModule mpm_worker_module modules\/mod_mpm_worker.so/g' /etc/apache2/httpd.conf
+sed -i 's/^DocumentRoot \"\/var\/www\/localhost\/htdocs\".*/DocumentRoot \"\/opt\/src\"/g' /etc/apache2/httpd.conf
+sed -i 's/^<Directory \"\/var\/www\/localhost\/htdocs\">.*/<Directory \"\/opt\/src\">/g' /etc/apache2/httpd.conf
+
+# Remove pid files if exists.  When we restart the Docker containers (after kill), some files are already existing and Apache will not start.
+rm -Rf /run/apache2/* /var/run/apache2/*
+
+exec /usr/sbin/httpd -e debug -DFOREGROUND
