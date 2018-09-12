@@ -1,33 +1,35 @@
 sudo: required
-language: php
-php:
-- '7.2'
+
+language: minimal
+
 services:
-- docker
+  - docker
+
 stages:
-- build
-- aws-deploy
+  - build
+  - aws-deploy
+
 jobs:
   include:
   - stage: build
     script:
-    - echo "Stage [build] - Step [script] ..."
-    - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION -t docker.io/$DOCKER_USERNAME/elasticms-web:RC -f box-web/Dockerfile .
-    - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION -t docker.io/$DOCKER_USERNAME/elasticms-php:RC -f box-php/Dockerfile .
+      - echo "Stage [build] - Step [script] ..."
+      - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION -t docker.io/$DOCKER_USERNAME/elasticms-web:RC -f box-web/Dockerfile .
+      - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION -t docker.io/$DOCKER_USERNAME/elasticms-php:RC -f box-php/Dockerfile .
     after_script:
-    - echo "Stage [Build] - Step [after_script] ..."
-    - docker images
+      - echo "Stage [Build] - Step [after_script] ..."
+      - docker images
     after_success:
-    - echo "Stage [Build] - Step [after_success] ..."
-    - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-    - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
-    - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
-    - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:latest
-    - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:latest
-    - docker push docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
-    - docker push docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
-    - docker push docker.io/$DOCKER_USERNAME/elasticms-web:latest
-    - docker push docker.io/$DOCKER_USERNAME/elasticms-php:latest
+      - echo "Stage [Build] - Step [after_success] ..."
+      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
+      - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
+      - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:latest
+      - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:latest
+      - docker push docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
+      - docker push docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
+      - docker push docker.io/$DOCKER_USERNAME/elasticms-web:latest
+      - docker push docker.io/$DOCKER_USERNAME/elasticms-php:latest
   - stage: aws-deploy
     script:
     - echo "Stage [aws-deploy] - Step [script] ..."
@@ -36,6 +38,7 @@ jobs:
       script: bash .aws/deploy.sh
       on:
         branch: master
+        
 env:
   global:
   - ELASTICMS_VERSION=1.9.21
