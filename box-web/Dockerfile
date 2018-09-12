@@ -5,6 +5,7 @@ ARG ELASTICMS_VERSION_ARG=""
 USER root
 
 ENV ELASTICMS_VERSION=${ELASTICMS_VERSION_ARG}                                                                                     \
+    ELASTICMS_DOWNLOAD_URL="https://github.com/ems-project/elasticms/archive"                                                      \
     HOME=/opt
 
 LABEL MAINTAINER="sebastian.molle@gmail.com"                                                                                       \
@@ -25,8 +26,6 @@ COPY bin/dynamic_resources /usr/local/bin/dynamic_resources
 COPY bin/func_fill_in_template_file_using_env /usr/local/bin/func_fill_in_template_file_using_env
 COPY bin/run-web /usr/local/bin/run-web
 
-COPY src/ /opt/src
-
 RUN apk add --update tzdata bash coreutils apache2 apache2-utils apache2-proxy                                                  && \
     echo "Setup timezone ..."                                                                                                   && \
     cp /usr/share/zoneinfo/Europe/Brussels /etc/localtime                                                                       && \
@@ -36,6 +35,12 @@ RUN apk add --update tzdata bash coreutils apache2 apache2-utils apache2-proxy  
     rm -rf /var/cache/apk/*                                                                                                     && \
     echo "Add non-privileged user ..."                                                                                          && \
     adduser -D -u 1001 -g default -s /sbin/nologin default                                                                      && \
+    echo "Download and install elasticms ..."                                                                                   && \
+    mkdir -p /opt/src                                                                                                           && \
+    curl -sSfLk ${ELASTICMS_DOWNLOAD_URL}/${ELASTICMS_VERSION}.tar.gz                                                            | \
+    tar -xzC /opt/src --strip-components=1                                                                                      && \
+    composer -vvvv install --no-interaction --no-suggest --working-dir /opt/src -o                                              && \
+    rm -rf /opt/src/bootstrap/cache/*                                                                                           && \
     echo "Setup permissions on filesystem for non-privileged user ..."                                                          && \
     mkdir -p /run/apache2 /var/run/apache2 /var/log/apache2 /opt/src                                                            && \
     chown -R 1001:0 /run/apache2 /var/run/apache2 /var/log/apache2 /opt/src /etc/apache2                                        && \

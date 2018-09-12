@@ -5,6 +5,8 @@ ARG ELASTICMS_VERSION_ARG=""
 USER root
 
 ENV ELASTICMS_VERSION=${ELASTICMS_VERSION_ARG}                                                                                     \
+    ELASTICMS_DOWNLOAD_URL="https://github.com/ems-project/elasticms/archive"                                                      \
+    COMPOSER_INSTALLER_SHA384SUM=""                                                                                                \
     MAIL_SMTP_SERVER=""                                                                                                            \
     MAIL_FROM_DOMAIN=""                                                                                                            \
     PHP_FPM_MAX_CHILDREN=${PHP_FPM_MAX_CHILDREN:-5}                                                                                \
@@ -32,8 +34,6 @@ COPY bin/dynamic_resources /usr/local/bin/dynamic_resources
 COPY bin/func_fill_in_template_file_using_env /usr/local/bin/func_fill_in_template_file_using_env
 COPY bin/run-php /usr/local/bin/run-php
 
-COPY src/ /opt/src
-
 RUN echo "Install Alpine packages ..."                                                                                          && \
     apk --update add curl tzdata bash tar gettext ssmtp mailx coreutils php7-intl php7-openssl php7-dba php7-sqlite3 php7-pear     \
                      php7-phpdbg php7-litespeed php7-gmp php7-pdo_mysql php7-pcntl php7-common php7-xsl php7-mysqlnd php7-enchant  \
@@ -51,6 +51,22 @@ RUN echo "Install Alpine packages ..."                                          
     rm -rf /var/cache/apk/*                                                                                                     && \
     echo "Add non-privileged user ..."                                                                                          && \
     adduser -D -u 1001 -g default -s /sbin/nologin default                                                                      && \
+    echo "Download and install Composer ..."                                                                                    && \
+    curl -sSfLk https://getcomposer.org/installer -o /tmp/composer-setup.php                                                    && \
+    curl -sSfLk https://composer.github.io/installer.sig -o /tmp/composer-setup.sig                                             && \
+    COMPOSER_INSTALLER_SHA384SUM=$(cat /tmp/composer-setup.sig)                                                                 && \
+    echo "$COMPOSER_INSTALLER_SHA384SUM /tmp/composer-setup.php" | sha384sum -c                                                 && \
+    php /tmp/composer-setup.php --disable-tls --install-dir=/usr/local/bin                                                      && \
+    rm /tmp/composer-setup.php /tmp/composer-setup.sig                                                                          && \
+    ln -s /usr/local/bin/composer.phar /usr/local/bin/composer                                                                  && \
+    chmod +x /usr/local/bin/composer.phar /usr/local/bin/composer                                                               && \
+    mkdir /home/default/.composer                                                                                               && \
+    echo "Download and install elasticms ..."                                                                                   && \
+    mkdir -p /opt/src                                                                                                           && \
+    curl -sSfLk ${ELASTICMS_DOWNLOAD_URL}/${ELASTICMS_VERSION}.tar.gz                                                            | \
+    tar -xzC /opt/src --strip-components=1                                                                                      && \
+    composer -vvvv install --no-interaction --no-suggest --working-dir /opt/src -o                                              && \
+    rm -rf /opt/src/bootstrap/cache/*                                                                                           && \
     echo "Setup permissions on filesystem for non-privileged user ..."                                                          && \
     mkdir -p /opt/bin /opt/src /opt/etc /var/log/php-fpm /var/run/php-fpm /var/php/session /var/php/wsdlcache                   && \
     chown -Rf 1001:0 /opt /etc/ssmtp /etc/php7 /var/log/php-fpm /var/run/php-fpm /var/php/session /var/php/wsdlcache            && \
