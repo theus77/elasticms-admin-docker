@@ -12,13 +12,8 @@ jobs:
   - stage: build
     script:
     - echo "Stage [build] - Step [script] ..."
-    # - git remote add -f elasticms git@github.com:ems-project/elasticms.git
-    # - git merge -s ours --no-commit --allow-unrelated-histories elasticms/master
-    # - git read-tree --prefix=src/ -u elasticms/master
-    # - git commit -m "Subtree elasticms/master merged in src"
-    - composer -v install --no-interaction -d src/
-    - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/elasticms-web:latest -f box-web/Dockerfile .
-    - docker build --no-cache --pull -t docker.io/$DOCKER_USERNAME/elasticms-php:latest -f box-php/Dockerfile .
+    - docker build --no-cache --pull --build-args ELASTICMS_VERSION_ARG=1.9.21 -t docker.io/$DOCKER_USERNAME/elasticms-web:latest -f box-web/Dockerfile .
+    - docker build --no-cache --pull --build-args ELASTICMS_VERSION_ARG=1.9.21 -t docker.io/$DOCKER_USERNAME/elasticms-php:latest -f box-php/Dockerfile .
     after_script:
     - echo "Stage [Build] - Step [after_script] ..."
     - docker images
