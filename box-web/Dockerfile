@@ -39,8 +39,6 @@ RUN apk add --update tzdata bash coreutils apache2 apache2-utils apache2-proxy  
     mkdir -p /opt/src                                                                                                           && \
     curl -sSfLk ${ELASTICMS_DOWNLOAD_URL}/${ELASTICMS_VERSION}.tar.gz                                                            | \
     tar -xzC /opt/src --strip-components=1                                                                                      && \
-    composer -vvvv install --no-interaction --no-suggest --working-dir /opt/src -o                                              && \
-    rm -rf /opt/src/bootstrap/cache/*                                                                                           && \
     echo "Setup permissions on filesystem for non-privileged user ..."                                                          && \
     mkdir -p /run/apache2 /var/run/apache2 /var/log/apache2 /opt/src                                                            && \
     chown -R 1001:0 /run/apache2 /var/run/apache2 /var/log/apache2 /opt/src /etc/apache2                                        && \
