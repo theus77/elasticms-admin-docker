@@ -26,7 +26,7 @@ COPY bin/dynamic_resources /usr/local/bin/dynamic_resources
 COPY bin/func_fill_in_template_file_using_env /usr/local/bin/func_fill_in_template_file_using_env
 COPY bin/run-web /usr/local/bin/run-web
 
-RUN apk add --update tzdata bash coreutils apache2 apache2-utils apache2-proxy                                                  && \
+RUN apk add --update tzdata bash coreutils apache2 apache2-utils apache2-proxy curl                                             && \
     echo "Setup timezone ..."                                                                                                   && \
     cp /usr/share/zoneinfo/Europe/Brussels /etc/localtime                                                                       && \
     echo "Europe/Brussels" > /etc/timezone                                                                                      && \
