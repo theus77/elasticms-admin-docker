@@ -39,4 +39,13 @@ sed -i 's/^;php_value\[soap.wsdl_cache_dir\].*/php_value\[soap.wsdl_cache_dir\] 
 sed -i "s/^php_admin_value\[memory_limit\].*/php_admin_value\[memory_limit\] = ${PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES}M/g" /etc/php7/php-fpm.d/www.conf
 sed -i "s/^pm.max_children.*/pm.max_children = ${PHP_FPM_MAX_CHILDREN}/g" /etc/php7/php-fpm.d/www.conf
 
+echo "migrate db"
+php /opt/src/bin/console doctrine:migrations:migrate --no-interaction
+
+echo "install assets"
+php /opt/src/bin/console asset:install /opt/src/public --symlink --no-interaction
+
+echo "cache warm up"
+php /opt/src/bin/console cache:warm --no-interaction
+
 /usr/sbin/php-fpm7 -F -R
