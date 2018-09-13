@@ -36,11 +36,10 @@ RUN apk add --update tzdata bash coreutils apache2 apache2-utils apache2-proxy c
     echo "Add non-privileged user ..."                                                                                          && \
     adduser -D -u 1001 -g default -s /sbin/nologin default                                                                      && \
     echo "Download and install elasticms ..."                                                                                   && \
-    mkdir -p /opt/src                                                                                                           && \
+    mkdir -p /opt/src /opt/src/public/bundles /run/apache2 /var/run/apache2 /var/log/apache2                                    && \
     curl -sSfLk ${ELASTICMS_DOWNLOAD_URL}/${ELASTICMS_VERSION}.tar.gz                                                            | \
     tar -xzC /opt/src --strip-components=1                                                                                      && \
     echo "Setup permissions on filesystem for non-privileged user ..."                                                          && \
-    mkdir -p /run/apache2 /var/run/apache2 /var/log/apache2 /opt/src                                                            && \
     chown -R 1001:0 /run/apache2 /var/run/apache2 /var/log/apache2 /opt/src /etc/apache2                                        && \
     chmod -R a+rwx /run/apache2 /var/run/apache2 /var/log/apache2 /opt/src                                                      && \
     chmod +x /usr/local/bin/apk-list                                                                                               \
