@@ -21,7 +21,7 @@ jobs:
       - docker images
     after_success:
       - echo "Stage [Build] - Step [after_success] ..."
-      - docker login -u="$DOCKER_USERNAME" --password-stdin="$DOCKER_PASSWORD"
+      - docker login -u="$DOCKER_USERNAME" --password="$DOCKER_PASSWORD" --password-stdin
       - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
       - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
       - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:latest
