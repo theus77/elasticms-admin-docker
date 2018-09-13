@@ -86,7 +86,7 @@ RUN echo "Install Alpine packages ..."                                          
 
 USER 1001
 
-VOLUME ["/var/run/php-fpm"]
+VOLUME ["/var/run/php-fpm","/opt/src/public/bundles"]
 
 ENTRYPOINT ["container-entrypoint"]
 
