@@ -57,4 +57,4 @@ ENTRYPOINT ["container-entrypoint"]
 
 EXPOSE 8080
 
-CMD ["usage"]
+CMD ["run-web"]
