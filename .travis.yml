@@ -30,14 +30,6 @@ jobs:
       - docker push docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
       - docker push docker.io/$DOCKER_USERNAME/elasticms-web:latest
       - docker push docker.io/$DOCKER_USERNAME/elasticms-php:latest
-  - stage: aws-deploy
-    script:
-    - echo "Stage [aws-deploy] - Step [script] ..."
-    deploy:
-      provider: script
-      script: bash .aws/deploy.sh
-      on:
-        branch: master
 
 env:
   global:
