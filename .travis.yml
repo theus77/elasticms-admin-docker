@@ -1,5 +1,3 @@
-sudo: required
-
 language: minimal
 
 services:
@@ -7,7 +5,6 @@ services:
 
 stages:
   - build
-  - aws-deploy
 
 jobs:
   include:
