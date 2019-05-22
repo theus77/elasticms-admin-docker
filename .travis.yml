@@ -11,8 +11,8 @@ jobs:
   - stage: build
     script:
       - echo "Stage [build] - Step [script] ..."
-      - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION -t docker.io/$DOCKER_USERNAME/elasticms-web:RC -f box-web/Dockerfile .
-      - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION -t docker.io/$DOCKER_USERNAME/elasticms-php:RC -f box-php/Dockerfile .
+      - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION --build-arg VCS_REF_ARG=$VCS_REF --build-arg BUILD_DATE_ARG=$BUILD_DATE -t docker.io/$DOCKER_USERNAME/elasticms-web:RC -f box-web/Dockerfile .
+      - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION --build-arg VCS_REF_ARG=$VCS_REF --build-arg BUILD_DATE_ARG=$BUILD_DATE -t docker.io/$DOCKER_USERNAME/elasticms-php:RC -f box-php/Dockerfile .
     after_script:
       - echo "Stage [Build] - Step [after_script] ..."
       - docker images
@@ -31,3 +31,5 @@ jobs:
 env:
   global:
   - ELASTICMS_VERSION=1.9.55
+  - VCS_REF=${TRAVIS_COMMIT}
+  - BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`

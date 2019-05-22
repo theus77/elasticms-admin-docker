@@ -1,6 +1,8 @@
 FROM docker.io/alpine:3.8
 
 ARG ELASTICMS_VERSION_ARG=""
+ARG BUILD_DATE_ARG=""
+ARG VCS_REF_ARG=""
 
 USER root
 
@@ -15,13 +17,15 @@ ENV ELASTICMS_VERSION=${ELASTICMS_VERSION_ARG}                                  
     HOME=/opt                                                                                                                      \
     PATH=/opt/bin:/usr/local/bin:/usr/bin:$PATH
 
-LABEL MAINTAINER="sebastian.molle@gmail.com"                                                                                       \
-      application.name="elasticms"                                                                                                 \
-      application.component="php-fpm"                                                                                              \
-      io.k8s.description="Platform for running PHP-FPM 7 Processor"                                                                \
-      io.k8s.display-name="PHP7-FPM"                                                                                               \
-      io.openshift.tags="php7-fpm"                                                                                                 \
-      application.version=${ELASTICMS_VERSION}
+LABEL org.label-schema.build-date=$BUILD_DATE_ARG \
+      org.label-schema.name="ElasticMS - PHP Docker Image." \
+      org.label-schema.description="A minimal CMS to manage generic content in order to publish it in several Elasticsearch index (based on Symfony 3)." \
+      org.label-schema.url="http://www.elasticms.eu" \
+      org.label-schema.vcs-ref=$VCS_REF_ARG \
+      org.label-schema.vcs-url="https://github.com/theus77/elasticms" \
+      org.label-schema.vendor="sebastian.molle@gmail.com" \
+      org.label-schema.version=$ELASTICMS_VERSION_ARG \
+      org.label-schema.schema-version="1.0"
 
 WORKDIR ${HOME}
 
