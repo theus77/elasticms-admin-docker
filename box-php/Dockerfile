@@ -1,6 +1,7 @@
 FROM docker.io/alpine:3.9
 
 ARG ELASTICMS_VERSION_ARG=""
+ARG ELASTICMS_DOCKER_RELEASE_ARG=""
 ARG BUILD_DATE_ARG=""
 ARG VCS_REF_ARG=""
 
@@ -24,7 +25,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE_ARG \
       org.label-schema.vcs-ref=$VCS_REF_ARG \
       org.label-schema.vcs-url="https://github.com/ems-project/elasticms" \
       org.label-schema.vendor="sebastian.molle@gmail.com" \
-      org.label-schema.version=$ELASTICMS_VERSION_ARG \
+      org.label-schema.version="$ELASTICMS_VERSION_ARG-$ELASTICMS_DOCKER_RELEASE_ARG" \
       org.label-schema.schema-version="1.0"
 
 WORKDIR ${HOME}
