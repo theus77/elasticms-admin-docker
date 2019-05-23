@@ -21,10 +21,14 @@ jobs:
       - docker login -u="$DOCKER_USERNAME" --password="$DOCKER_PASSWORD"
       - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_DOCKER_TAG
       - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_DOCKER_TAG
+      - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
+      - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
       - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:latest
       - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:latest
       - docker push docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_DOCKER_TAG
       - docker push docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_DOCKER_TAG
+      - docker push docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
+      - docker push docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
       - docker push docker.io/$DOCKER_USERNAME/elasticms-web:latest
       - docker push docker.io/$DOCKER_USERNAME/elasticms-php:latest
 
