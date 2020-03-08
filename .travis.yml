@@ -16,6 +16,8 @@ before_install:
   - docker pull arminc/clair-local-scan:latest
   - docker pull zebby76/clair-scanner:latest
   - docker network create docker_default
+  - pip install --user awscli # install aws cli w/o sudo
+  - export PATH=$PATH:$HOME/.local/bin # put aws in the path
 
 before_script:
   - sudo sysctl -w vm.max_map_count=262144
