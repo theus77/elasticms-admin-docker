@@ -16,7 +16,7 @@ export BATS_PHP_SCRIPTS_VOLUME_NAME=${BATS_PHP_SCRIPTS_VOLUME_NAME:-php_scripts}
 
 export BATS_STORAGE_SERVICE_NAME="postgresql"
 
-export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/elasticms}:rc"
+export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin}:rc"
 
 @test "[$TEST_FILE] Starting Elasticms Docker images build" {
   command docker-compose -f docker-compose-fs.yml build --pull --no-cache elasticms 

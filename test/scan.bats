@@ -16,7 +16,7 @@ export BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME=${BATS_CLAIR_LOCAL_SCANNER_CO
 
 export BATS_STORAGE_SERVICE_NAME="postgresql"
 
-export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/elasticms}:rc"
+export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin}:rc"
 
 @test "[$TEST_FILE] Create Docker external volumes (local)" {
   command docker volume create -d local ${BATS_PGSQL_VOLUME_NAME}
@@ -50,7 +50,7 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
 @test "[$TEST_FILE] Launch Clair Scan for [ $BATS_EMS_DOCKER_IMAGE_NAME ] Docker Image" {
   export BATS_CLAIR_LOCAL_ENDPOINT_URL="http://$(docker inspect --format '{{ .NetworkSettings.Networks.docker_default.IPAddress }}' clair_local_scan):6060"
   export BATS_CLAIR_LOCAL_SCANNER_IP="clair_local_scanner"
-  export BATS_CLAIR_SCAN_DOCKER_IMAGE_NAME="${BATS_EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/elasticms:rc}"
+  export BATS_CLAIR_SCAN_DOCKER_IMAGE_NAME="${BATS_EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc}"
 
   run docker-compose -f docker-compose-fs.yml up clair_local_scanner
   assert_success
