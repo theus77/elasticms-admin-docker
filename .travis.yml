@@ -3,39 +3,60 @@ language: minimal
 services:
   - docker
 
-stages:
-  - build
+before_install:
+  - echo "Stage [Test] - Step [before_install] ..."
+  - sudo add-apt-repository ppa:duggan/bats --yes
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq bats
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker pull appropriate/curl:latest
+  - docker pull arminc/clair-db:latest 
+  - docker pull arminc/clair-local-scan:latest
+  - docker pull zebby76/clair-scanner:latest
+  - docker network create docker_default
 
-jobs:
-  include:
-  - stage: build
-    script:
-      - echo "Stage [build] - Step [script] ..."
-      - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION --build-arg ELASTICMS_DOCKER_RELEASE_ARG=$ELASTICMS_DOCKER_RELEASE --build-arg VCS_REF_ARG=$VCS_REF --build-arg BUILD_DATE_ARG=$BUILD_DATE -t docker.io/$DOCKER_USERNAME/elasticms-web:RC -f box-web/Dockerfile .
-      - docker build --no-cache --pull --build-arg ELASTICMS_VERSION_ARG=$ELASTICMS_VERSION --build-arg ELASTICMS_DOCKER_RELEASE_ARG=$ELASTICMS_DOCKER_RELEASE --build-arg VCS_REF_ARG=$VCS_REF --build-arg BUILD_DATE_ARG=$BUILD_DATE -t docker.io/$DOCKER_USERNAME/elasticms-php:RC -f box-php/Dockerfile .
-    after_script:
-      - echo "Stage [Build] - Step [after_script] ..."
-      - docker images
-    after_success:
-      - echo "Stage [Build] - Step [after_success] ..."
-      - docker login -u="$DOCKER_USERNAME" --password="$DOCKER_PASSWORD"
-      - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_DOCKER_TAG
-      - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_DOCKER_TAG
-      - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
-      - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
-      - docker tag docker.io/$DOCKER_USERNAME/elasticms-web:RC docker.io/$DOCKER_USERNAME/elasticms-web:latest
-      - docker tag docker.io/$DOCKER_USERNAME/elasticms-php:RC docker.io/$DOCKER_USERNAME/elasticms-php:latest
-      - docker push docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_DOCKER_TAG
-      - docker push docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_DOCKER_TAG
-      - docker push docker.io/$DOCKER_USERNAME/elasticms-web:$ELASTICMS_VERSION
-      - docker push docker.io/$DOCKER_USERNAME/elasticms-php:$ELASTICMS_VERSION
-      - docker push docker.io/$DOCKER_USERNAME/elasticms-web:latest
-      - docker push docker.io/$DOCKER_USERNAME/elasticms-php:latest
+before_script:
+  - sudo sysctl -w vm.max_map_count=262144
+
+script:
+  - echo "Stage [Test] - Step [script] ..."
+  - bats test/build.bats
+  - bats test/tests.fs.storage.bats
+  - bats test/tests.s3.storage.bats
+
+after_script:
+  - echo "Stage [Test] - Step [after_script] ..."
+  - docker images
+
+after_success:
+  - echo "Stage [Test] - Step [after_success] ..."
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker tag ${EMS_DOCKER_IMAGE_NAME}:rc ${EMS_DOCKER_IMAGE_NAME}:$TRAVIS_COMMIT
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker tag ${EMS_DOCKER_IMAGE_NAME}:rc ${EMS_DOCKER_IMAGE_NAME}:$DOCKER_TAG
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker tag ${EMS_DOCKER_IMAGE_NAME}:rc ${EMS_DOCKER_IMAGE_NAME}:$ELASTICMS_VERSION
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker tag ${EMS_DOCKER_IMAGE_NAME}:rc ${EMS_DOCKER_IMAGE_NAME}:latest
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker push ${EMS_DOCKER_IMAGE_NAME}:$TRAVIS_COMMIT
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker push ${EMS_DOCKER_IMAGE_NAME}:$DOCKER_TAG
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker push ${EMS_DOCKER_IMAGE_NAME}:$ELASTICMS_VERSION
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker push ${EMS_DOCKER_IMAGE_NAME}:latest
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+      - pass
+
+notifications:
+  email: false
 
 env:
   global:
-  - ELASTICMS_VERSION=1.9.55
-  - ELASTICMS_DOCKER_RELEASE=$TRAVIS_BUILD_NUMBER
-  - ELASTICMS_DOCKER_TAG="$ELASTICMS_VERSION-$ELASTICMS_DOCKER_RELEASE"
-  - VCS_REF=${TRAVIS_COMMIT}
-  - BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+    - DOCKER_COMPOSE_VERSION=1.25.4
+    - ELASTICMS_VERSION=1.12.2
+    - RELEASE_NUMBER=$TRAVIS_BUILD_NUMBER
+    - VCS_REF=${TRAVIS_COMMIT}
+    - BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+    - DOCKER_TAG="${ELASTICMS_VERSION}-${RELEASE_NUMBER}"
+    - EMS_DOCKER_IMAGE_NAME="docker.io/elasticms/admin"
