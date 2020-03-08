@@ -1,6 +1,0 @@
-#!/bin/sh
-
-cat <<EOF
-docker run -d --name php zebby76/elasticms-php:latest run-php
-docker run -d --name web --volumes-from php -p 8080:8080 zebby76/elasticms-web:latest run-web 
-EOF
