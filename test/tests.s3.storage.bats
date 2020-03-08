@@ -51,7 +51,7 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/zebby76/ad
   command docker volume create -d local ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME}
 }
 
-@test "[$TEST_FILE] Starting Elasticms Storage Services (S3, PostgreSQL, Elasticsearch)" {
+@test "[$TEST_FILE] Pull all Docker images" {
   command docker-compose -f docker-compose-s3.yml pull
 }
 
@@ -176,6 +176,9 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/zebby76/ad
     assert_output -l 0 $'401'
 
     retry 12 5 curl_container ems :9000/cluster/ -H "Host: ${SERVER_NAME}" -s -w %{http_code} -o /dev/null
+    assert_output -l 0 $'200'
+
+    retry 12 5 curl_container ems :9000/health_check.json -H "Host: ${SERVER_NAME}" -s -w %{http_code} -o /dev/null
     assert_output -l 0 $'200'
 
     rm /tmp/$_name
