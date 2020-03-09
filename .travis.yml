@@ -25,7 +25,7 @@ before_script:
 script:
   - echo "Stage [Test] - Step [script] ..."
   - bats test/build.bats
-  - bats tests/scan.bats
+  - bats test/scan.bats
   - bats test/tests.fs.storage.bats
   - bats test/tests.s3.storage.bats
 
