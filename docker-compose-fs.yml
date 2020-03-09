@@ -1,0 +1,157 @@
+version: "2"
+
+services:
+  clair_db:
+    image: arminc/clair-db:latest
+    container_name: clair_db
+    networks:
+      - default
+    mem_limit: 512m
+
+  clair_local_scan:
+    image: arminc/clair-local-scan:latest
+    container_name: clair_local_scan
+    links:
+      - clair_db:postgres
+    depends_on:
+      - clair_db
+    networks:
+      - default
+    mem_limit: 512m
+
+  clair_local_scanner:
+    image: zebby76/clair-scanner:latest
+    container_name: clair_local_scanner
+    command: ["--clair","${BATS_CLAIR_LOCAL_ENDPOINT_URL}","--ip","${BATS_CLAIR_LOCAL_SCANNER_IP}","--all","-l","/opt/clair/config/clair-report.log","-r","/opt/clair/config/clair-report.json","-w","/opt/clair/config/clair-whitelist.yml","${BATS_CLAIR_SCAN_DOCKER_IMAGE_NAME}"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - clair_config:/opt/clair/config
+    links:
+      - clair_db:postgres
+    depends_on:
+      - clair_db
+    networks:
+      - default
+    mem_limit: 512m
+
+  tika:
+    image: docker.io/smalswebtech/tika-server:latest
+    container_name: tika
+    networks:
+      - default
+    mem_limit: 512m
+
+  postgresql:
+    image: docker.io/postgres:9.6
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=${BATS_ROOT_DB_USER}
+      - POSTGRES_PASSWORD=${BATS_ROOT_DB_PASSWORD}
+      - POSTGRES_DB=${BATS_ROOT_DB_NAME}
+    volumes:
+      - data_pgsql:/var/lib/postgresql/data
+    networks:
+      - default
+    mem_limit: 512m
+
+  elasticms:
+    image: ${BATS_EMS_DOCKER_IMAGE_NAME}
+    container_name: ems
+    ports:
+      - 9000:9000
+    environment: 
+      - PHP_FPM_MAX_CHILDREN=${BATS_PHP_FPM_MAX_CHILDREN}
+      - PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES=${BATS_PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES}
+      - CONTAINER_HEAP_PERCENT=${BATS_CONTAINER_HEAP_PERCENT}
+      - ES_ENDPOINT_URL=${BATS_ES_LOCAL_ENDPOINT_URL}
+      - TIKA_ENDPOINT_URL=${BATS_TIKA_LOCAL_ENDPOINT_URL}
+      - DB_DRIVER=${BATS_DB_DRIVER}
+      - DB_HOST=${BATS_DB_HOST}
+      - DB_PORT=${BATS_DB_PORT}
+      - DB_USER=${BATS_DB_USER}
+      - DB_PASSWORD=${BATS_DB_PASSWORD}
+      - DB_NAME=${BATS_DB_NAME}
+    links:
+      - ${BATS_STORAGE_SERVICE_NAME}:${BATS_STORAGE_SERVICE_NAME}
+    depends_on:
+      - ${BATS_STORAGE_SERVICE_NAME}
+    command: ["wait-for-it", "${BATS_DB_HOST}:${BATS_DB_PORT}", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+    volumes:
+      - data_ems:/var/lib/ems
+      - config_ems:/opt/secrets
+    networks:
+      - default
+    build:
+      context: .
+      args:
+        VERSION_ARG: ${ELASTICMS_VERSION}
+        RELEASE_ARG: ${RELEASE_NUMBER}
+        BUILD_DATE_ARG: ${BUILD_DATE}
+        VCS_REF_ARG: ${VCS_REF}
+    mem_limit: 512m
+
+  elasticsearch_1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.11
+    container_name: elasticsearch_1
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "xpack.security.enabled=false"
+      - "discovery.zen.minimum_master_nodes=1"
+    volumes:
+      - data_es_1:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    networks:
+      - default
+    mem_limit: 1024m
+
+  elasticsearch_2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.11
+    container_name: elasticsearch_2
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch_1"
+      - "xpack.security.enabled=false"
+      - "discovery.zen.minimum_master_nodes=1"
+    volumes:
+      - data_es_2:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - default
+    mem_limit: 1024m
+
+volumes:
+  data_pgsql:
+    external:
+      name: ${BATS_PGSQL_VOLUME_NAME}
+  data_ems:
+    external:
+      name: ${BATS_EMS_STORAGE_VOLUME_NAME}
+  data_es_1:
+    external:
+      name: ${BATS_ES_1_VOLUME_NAME}
+  data_es_2:
+    external:
+      name: ${BATS_ES_2_VOLUME_NAME}
+  config_ems:
+    external:
+      name: ${BATS_EMS_CONFIG_VOLUME_NAME}
+  clair_config:
+    external:
+      name: ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME}
+
+networks:
+  default:
+    external:
+      name: docker_default

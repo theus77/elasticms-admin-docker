@@ -1,0 +1,3 @@
+generalwhitelist: #Approve CVE for any image
+  CVE-2016-4074: jq # false-positive : https://github.com/quay/clair/issues/852
+
