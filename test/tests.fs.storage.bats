@@ -149,6 +149,11 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
   done
 }
 
+@test "[$TEST_FILE] Check for Elasticms Default Index page response code 200" {
+  retry 12 5 curl_container ems :9000/index.php -H "Host: default.localhost" -s -w %{http_code} -o /dev/null
+  assert_output -l 0 $'200'
+}
+
 @test "[$TEST_FILE] Check for Elasticms status page response code 200 for all configured domains (Volume)" {
   for file in ${BATS_TEST_DIRNAME%/}/config/fs/*.properties ; do
     _basename=$(basename $file)
