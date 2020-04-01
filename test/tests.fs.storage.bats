@@ -176,6 +176,21 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
   done
 }
 
+@test "[$TEST_FILE] Check for Monitoring /real-time-status page response code 200" {
+  retry 12 5 curl_container php :9000/real-time-status -H "Host: default.localhost" -s -w %{http_code} -o /dev/null
+  assert_output -l 0 $'200'
+}
+
+@test "[$TEST_FILE] Check for Monitoring /status page response code 200" {
+  retry 12 5 curl_container php :9000/status -H "Host: default.localhost" -s -w %{http_code} -o /dev/null
+  assert_output -l 0 $'200'
+}
+
+@test "[$TEST_FILE] Check for Monitoring /server-status page response code 200" {
+  retry 12 5 curl_container php :9000/server-status -H "Host: default.localhost" -s -w %{http_code} -o /dev/null
+  assert_output -l 0 $'200'
+}
+
 @test "[$TEST_FILE] Stop all and delete test containers" {
   command docker-compose -f docker-compose-fs.yml stop
   command docker-compose -f docker-compose-fs.yml rm -v -f  
