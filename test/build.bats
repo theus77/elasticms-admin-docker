@@ -18,6 +18,9 @@ export BATS_STORAGE_SERVICE_NAME="postgresql"
 
 export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin}:rc"
 
-@test "[$TEST_FILE] Starting Elasticms Docker images build" {
-  command docker-compose -f docker-compose-fs.yml build --pull --no-cache elasticms 
+docker-compose -f docker-compose-fs.yml build --compress --pull elasticms >&2
+
+@test "[$TEST_FILE] Check Elasticms Docker images build" {
+  run docker inspect --type=image ${BATS_EMS_DOCKER_IMAGE_NAME}
+  [ "$status" -eq 0 ]
 }
