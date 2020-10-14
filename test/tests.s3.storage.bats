@@ -17,6 +17,9 @@ export BATS_DB_USER="${BATS_DB_USER:-example_adm}"
 export BATS_DB_PASSWORD="${BATS_DB_PASSWORD:-example}"
 export BATS_DB_NAME="${BATS_DB_NAME:-example}"
 
+export BATS_REDIS_HOST="${BATS_REDIS_HOST:-redis}"
+export BATS_REDIS_PORT="${BATS_REDIS_PORT:-6379}"
+
 export BATS_S3_CONFIG_BUCKET_NAME="s3bucket-ems-config/example/config/elasticms"
 export BATS_S3_STORAGE_BUCKET_NAME="s3bucket-example-ems-storage"
 export BATS_S3_ENDPOINT_URL="http://localhost:4572"
@@ -29,6 +32,7 @@ export BATS_ES_1_VOLUME_NAME=${BATS_ES_1_VOLUME_NAME:-elasticsearch_data_1}
 export BATS_ES_2_VOLUME_NAME=${BATS_ES_2_VOLUME_NAME:-elasticsearch_data_2}
 export BATS_EMS_CONFIG_VOLUME_NAME=${BATS_EMS_CONFIG_VOLUME_NAME:-ems_configmap}
 export BATS_EMS_STORAGE_VOLUME_NAME=${BATS_EMS_STORAGE_VOLUME_NAME:-ems_storage}
+export BATS_REDIS_VOLUME_NAME=${BATS_REDIS_VOLUME_NAME:-redis_storage}
 
 export AWS_ACCESS_KEY_ID="${BATS_S3_ACCESS_KEY_ID}"
 export AWS_SECRET_ACCESS_KEY="${BATS_S3_SECRET_ACCESS_KEY}"
@@ -42,25 +46,27 @@ export BATS_CONTAINER_HEAP_PERCENT="${BATS_CONTAINER_HEAP_PERCENT:-0.80}"
 
 export BATS_STORAGE_SERVICE_NAME="postgresql"
 
-export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/zebby76/admin}:rc"
+export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin}:rc"
 
 @test "[$TEST_FILE] Create Docker external volumes (local)" {
   command docker volume create -d local ${BATS_PGSQL_VOLUME_NAME}
   command docker volume create -d local ${BATS_ES_1_VOLUME_NAME}
   command docker volume create -d local ${BATS_ES_2_VOLUME_NAME}
   command docker volume create -d local ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME}
+  command docker volume create -d local ${BATS_REDIS_VOLUME_NAME}
 }
 
 @test "[$TEST_FILE] Pull all Docker images" {
   command docker-compose -f docker-compose-s3.yml pull
 }
 
-@test "[$TEST_FILE] Starting Elasticms Storage Services (S3, PostgreSQL, Elasticsearch)" {
-  command docker-compose -f docker-compose-s3.yml up -d s3 postgresql elasticsearch_1 elasticsearch_2 
+@test "[$TEST_FILE] Starting Elasticms Storage Services (S3, PostgreSQL, Elasticsearch, Redis)" {
+  command docker-compose -f docker-compose-s3.yml up -d s3 postgresql elasticsearch_1 elasticsearch_2 redis
   docker_wait_for_log postgresql 240 "LOG:  autovacuum launcher started"
   docker_wait_for_log elasticsearch_1 240 "\[INFO \]\[o.e.n.Node.*\] \[.*\] started"
   docker_wait_for_log elasticsearch_2 240 "\[INFO \]\[o.e.n.Node.*\] \[.*\] started"
   docker_wait_for_log s3 240 "Ready."
+  docker_wait_for_log redis 240 "Ready to accept connections"
 }
 
 @test "[$TEST_FILE] Starting Tika Service" {
@@ -112,6 +118,7 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/zebby76/ad
   export BATS_ES_LOCAL_ENDPOINT_URL=http://$(docker_ip elasticsearch_1):9200
   export BATS_S3_ENDPOINT_URL=http://$(docker_ip s3):4572
   export BATS_TIKA_LOCAL_ENDPOINT_URL=http://$(docker_ip tika):9998
+  export BATS_REDIS_HOST=$(docker_ip redis)
 
   command docker-compose -f docker-compose-s3.yml up -d elasticms
 
@@ -127,8 +134,10 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/zebby76/ad
     docker_wait_for_log ems 15 "Elasticms warming up for \[ ${_name} \] CMS Domain run successfully ..."
   done
 
+  docker_wait_for_log ems 15 "Configure Session Handler for Redis"
   docker_wait_for_log ems 15 "NOTICE: ready to handle connections"
   docker_wait_for_log ems 15 "AH00292: Apache/.* \(Unix\) OpenSSL/.* configured -- resuming normal operations"
+
 }
 
 @test "[$TEST_FILE] Create Elasticms Super Admin user in running container for all configured domains (S3)" {
@@ -216,4 +225,5 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/zebby76/ad
   command docker volume rm ${BATS_ES_1_VOLUME_NAME}
   command docker volume rm ${BATS_ES_2_VOLUME_NAME}
   command docker volume rm ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME} 
+  command docker volume rm ${BATS_REDIS_VOLUME_NAME} 
 }
