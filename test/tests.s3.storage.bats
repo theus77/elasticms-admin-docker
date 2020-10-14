@@ -173,6 +173,11 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
   done
 }
 
+@test "[$TEST_FILE] Check for Redis session handler" {
+  run docker exec -it redis sh -c ". /opt/rh/rh-redis5/enable && redis-cli --scan"
+  assert_output -l -r "^.*sf.*$"
+}
+
 @test "[$TEST_FILE] Check for Elasticms Default Index page response code 200" {
   retry 12 5 curl_container ems :9000/index.php -H 'Host: default.localhost' -s -w %{http_code} -o /dev/null
   assert_output -l 0 $'200'

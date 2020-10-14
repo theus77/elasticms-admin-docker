@@ -306,6 +306,8 @@ function configure {
 
 function install {
 
+  configure-symfony-framework
+
   if [ ! -z "$AWS_S3_CONFIG_BUCKET_NAME" ]; then
     echo "Found AWS_S3_CONFIG_BUCKET_NAME environment variable.  Reading properties files ..."
 
@@ -381,8 +383,6 @@ function install {
     echo "Install [ default ] CMS Domain from Environment variables successfully ..."
 
   fi
-
-  configure-symfony-framework
 
 }
 
