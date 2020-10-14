@@ -63,10 +63,8 @@ if [ \${1:-list} = sql ] || [ \${1:-list} = dump ] ; then
     fi;
   elif [ \${DB_DRIVER:-mysql} = pgsql ] ; then
     if [ \${1:-list} = sql ] ; then
-      echo PGHOST=\${DB_HOST} PGPORT=\${DB_PORT} PGDATABASE=\${DB_NAME} PGUSER=\${DB_USER} PGPASSWORD=\${DB_PASSWORD} psql \${@:2}
       PGHOST=\${DB_HOST} PGPORT=\${DB_PORT} PGDATABASE=\${DB_NAME} PGUSER=\${DB_USER} PGPASSWORD=\${DB_PASSWORD} psql \${@:2}
     else
-      echo PGHOST=\${DB_HOST} PGPORT=\${DB_PORT} PGDATABASE=\${DB_NAME} PGUSER=\${DB_USER} PGPASSWORD=\${DB_PASSWORD} pg_dump -w --clean -Fp -O --schema=\${DB_SCHEMA:-public} | sed "/^\(DROP\|ALTER\|CREATE\) SCHEMA.*\$/d"
       PGHOST=\${DB_HOST} PGPORT=\${DB_PORT} PGDATABASE=\${DB_NAME} PGUSER=\${DB_USER} PGPASSWORD=\${DB_PASSWORD} pg_dump -w --clean -Fp -O --schema=\${DB_SCHEMA:-public} | sed "/^\(DROP\|ALTER\|CREATE\) SCHEMA.*\$/d"
     fi;
   else
@@ -189,6 +187,62 @@ EOL
 
 }
 
+function configure-symfony-session-handler {
+
+  if ! [ -z ${REDIS_HOST+x} ]; then
+    echo "Configure Session Handler for Redis and use [ $REDIS_HOST:$REDIS_PORT ] as backend host ..."
+    cat >> /opt/src/config/packages/framework.yaml <<EOL
+    session:
+        handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
+EOL
+  else
+    echo "Configure Session Handler for PDO and use [ $DB_HOST:$DB_PORT ] as backend host ..."
+    cat >> /opt/src/config/packages/framework.yaml <<EOL
+    session:
+        handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+EOL
+  fi
+
+}
+
+function configure-symfony-framework {
+
+  cat >/opt/src/config/packages/framework.yaml <<EOL
+framework:
+    secret: '%env(APP_SECRET)%'
+    default_locale: en
+
+    #csrf_protection: true
+    #http_method_override: true
+
+    #esi: true
+    #fragments: true
+    php_errors:
+        log: true
+
+    templating:
+        engines: ['twig', 'php']
+
+    cache:
+        # Put the unique name of your app here: the prefix seed
+        # is used to compute stable namespaces for cache keys.
+        #prefix_seed: your_vendor_name/app_name
+
+        # The app cache caches to the filesystem by default.
+        # Other options include:
+
+        # Redis
+        #app: cache.adapter.redis
+        #default_redis_provider: redis://localhost
+
+        # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
+        #app: cache.adapter.apcu
+EOL
+
+  configure-symfony-session-handler
+
+}
+
 function configure {
   local -r _name=$1
 
@@ -198,31 +252,13 @@ function configure {
   create-wrapper-script "${_name}"
   create-ems-folders
 
-  #if [ ! -z "$EMS_DUMPS_FOLDER" ]; then
-  #  _file="${EMS_DUMPS_FOLDER%/}/deploy_${_name}_${_today}.sql"
-  #else
-  #  _file="/var/lib/ems/dumps/deploy_${_name}_${_today}.sql"
-  #fi
-  #
-  #if [ ! -f $_file ]; then
-  #  echo "Create database backup at : $_file"
-  #  /opt/bin/$_name dump > $_file
-  #  if [ $? -eq 0 ]; then
-  #    echo "Database backup created successfully ..."
-  #  else
-  #    echo "Warning: something doesn't work with the database backup !"
-  #  fi
-  #else
-  #  echo "Database backup already exists at : $_file"
-  #fi;
-
   if [[ "$DB_DRIVER" =~ ^.*pgsql$ ]]; then
     if [[ "$DB_USER" =~ ^.*_(chg)$ ]]; then
       echo "Startup DBCR() ..."
       PGHOST=${DB_HOST} PGPORT=${DB_PORT} PGDATABASE=${DB_NAME} PGUSER=${DB_USER} PGPASSWORD=${DB_PASSWORD} psql -c 'select * from start_dbcr();'
     fi
   fi
-  
+
   echo "Running Doctrine database migration for [ $_name ] CMS Domain ..."
   /opt/bin/$_name doctrine:migrations:migrate --no-interaction
   if [ $? -eq 0 ]; then
@@ -237,7 +273,7 @@ function configure {
       PGHOST=${DB_HOST} PGPORT=${DB_PORT} PGDATABASE=${DB_NAME} PGUSER=${DB_USER} PGPASSWORD=${DB_PASSWORD} psql -c 'select * from stop_dbcr();'
     fi
   fi
-  
+
   echo "Running Elasticms assets installation to /opt/src/public folder for [ $_name ] CMS Domain ..."
   /opt/bin/$_name asset:install /opt/src/public --symlink --no-interaction
   if [ $? -eq 0 ]; then
@@ -333,6 +369,8 @@ function install {
     echo "Install [ default ] CMS Domain from Environment variables successfully ..."
 
   fi
+
+  configure-symfony-framework
 
 }
 

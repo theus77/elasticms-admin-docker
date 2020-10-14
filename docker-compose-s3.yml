@@ -58,6 +58,8 @@ services:
       - DB_USER=${BATS_DB_USER}
       - DB_PASSWORD=${BATS_DB_PASSWORD}
       - DB_NAME=${BATS_DB_NAME}
+      - REDIS_HOST=${BATS_REDIS_HOST}
+      - REDIS_PORT=${BATS_REDIS_PORT}
     links:
       - ${BATS_STORAGE_SERVICE_NAME}:${BATS_STORAGE_SERVICE_NAME}
       - s3:s3
@@ -117,7 +119,19 @@ services:
       - default
     mem_limit: 1024m
 
+  redis:
+    image: centos/redis-5-centos7
+    container_name: redis
+    volumes:
+      - data_redis:/var/lib/redis/data
+    networks:
+      - default
+    mem_limit: 512m
+
 volumes:
+  data_redis:
+    external:
+      name: ${BATS_REDIS_VOLUME_NAME}
   data_pgsql:
     external:
       name: ${BATS_PGSQL_VOLUME_NAME}
