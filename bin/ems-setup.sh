@@ -55,10 +55,8 @@ set +o allexport
 if [ \${1:-list} = sql ] || [ \${1:-list} = dump ] ; then
   if [ \${DB_DRIVER:-mysql} = mysql ] ; then
     if [ \${1:-list} = sql ] ; then
-      echo mysql --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$DB_PASSWORD \$DB_NAME
       mysql --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$DB_PASSWORD \$DB_NAME
     else
-      echo mysqldump --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$DB_PASSWORD \$DB_NAME
       mysqldump --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$DB_PASSWORD \$DB_NAME
     fi;
   elif [ \${DB_DRIVER:-mysql} = pgsql ] ; then
