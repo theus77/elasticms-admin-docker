@@ -193,11 +193,25 @@ function configure-symfony-session-handler {
     session:
         handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
 EOL
-  else
-    echo "Configure Session Handler for PDO and use [ $DB_HOST:$DB_PORT ] as backend host ..."
-    cat >> /opt/src/config/packages/framework.yaml <<EOL
+  elif ! [ -z ${DB_DRIVER+x} ]; then
+    if [ ${DB_DRIVER} = sqlite ]; then 
+      echo "Configure Session Handler for files ..."
+      cat >> /opt/src/config/packages/framework.yaml <<EOL
+    session:
+        handler_id: ~
+EOL
+    else
+      echo "Configure Session Handler for PDO and use [ $DB_HOST:$DB_PORT ] as backend host ..."
+      cat >> /opt/src/config/packages/framework.yaml <<EOL
     session:
         handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+EOL
+    fi
+  else
+    echo "Configure Session Handler for files ..."
+    cat >> /opt/src/config/packages/framework.yaml <<EOL
+    session:
+        handler_id: ~
 EOL
   fi
 
