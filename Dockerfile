@@ -42,9 +42,10 @@ COPY etc/ /usr/local/etc/
 COPY --from=builder /opt/src /opt/src
 
 RUN echo "Setup permissions on filesystem for non-privileged user ..." \
-    && chmod -Rf +x /opt/bin \ 
-    && chown -Rf 1001:0 /opt \
-    && chmod -R ug+rw /opt \
+    && mkdir -p /var/lib/ems \
+    && chmod -Rf +x /opt/bin /var/lib/ems \ 
+    && chown -Rf 1001:0 /opt /var/lib/ems \
+    && chmod -R ug+rw /opt /var/lib/ems \
     && find /opt -type d -exec chmod ug+x {} \; 
 
 USER 1001
