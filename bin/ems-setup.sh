@@ -69,7 +69,7 @@ if [ \${1:-list} = sql ] || [ \${1:-list} = dump ] ; then
     echo Driver \$DB_DRIVER not supported
   fi;
 else
-  php /opt/src/bin/console \$@
+  php -d memory_limit=\${CLI_PHP_MEMORY_LIMIT:-512M} /opt/src/bin/console \$@
 fi;
 EOL
 
