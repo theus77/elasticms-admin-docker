@@ -2,3 +2,4 @@ generalwhitelist: #Approve CVE for any image
   CVE-2016-4074: jq # false-positive : https://github.com/quay/clair/issues/852
   CVE-2020-8169: curl
   CVE-2020-8177: curl
+  CVE-2020-26159: oniguruma # whitelist CVE while parent docker image has been released
