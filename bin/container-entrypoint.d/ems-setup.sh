@@ -98,7 +98,7 @@ echo ---
 echo Running ems-jobs for [ $_instance_name ]
 echo ---
 
-/opt/bin/$_instance_name -vvv ems:job:run
+/opt/bin/$_instance_name ems:job:run ${JOBS_OPTS}
 
 EOL
 
@@ -292,7 +292,14 @@ function configure {
 
   create-apache-vhost "${_name}"
   create-wrapper-scripts "${_name}"
-  configure-supervisord-eventlistener "${_name}"
+
+  if [ -z ${JOBS_ENABLED} ] || [ "${JOBS_ENABLED}" != "true" ]; then
+    echo "Use PHP-FPM for running EMS Jobs ..."
+  else
+    echo "Use Supervisord for running EMS Jobs ..."
+    configure-supervisord-eventlistener "${_name}"
+  fi
+
   create-ems-folders
 
   if [[ "$DB_DRIVER" =~ ^.*pgsql$ ]]; then
