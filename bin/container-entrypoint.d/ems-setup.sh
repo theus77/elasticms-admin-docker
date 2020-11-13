@@ -40,10 +40,28 @@ function create-ems-folders {
 
 }
 
-function create-wrapper-script {
+function configure-supervisord-eventlistener {
   local -r _instance_name=$1
 
-  mkdir -p /opt/bin
+  mkdir -p /etc/supervisord/supervisord.d
+
+  cat >/etc/supervisord/supervisord.d/$_instance_name.ini <<EOL
+[eventlistener:ems-jobs]
+command=/opt/bin/supervisord-event-listener.py /opt/bin/ems-jobs/$_instance_name
+events=TICK_60
+autorestart=false
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+EOL
+
+}
+
+function create-wrapper-scripts {
+  local -r _instance_name=$1
+
+  mkdir -p /opt/bin/ems-jobs
 
   cat >/opt/bin/$_instance_name <<EOL
 #!/bin/bash
@@ -73,7 +91,19 @@ else
 fi;
 EOL
 
+  cat >/opt/bin/ems-jobs/$_instance_name <<EOL
+#!/bin/bash
+
+echo ---
+echo Running ems-jobs for [ $_instance_name ]
+echo ---
+
+/opt/bin/$_instance_name ems:job:run ${JOBS_OPTS}
+
+EOL
+
   chmod a+x /opt/bin/$_instance_name
+  chmod a+x /opt/bin/ems-jobs/$_instance_name
 
 }
 
@@ -194,7 +224,7 @@ function configure-symfony-session-handler {
         handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
 EOL
   elif ! [ -z ${DB_DRIVER+x} ]; then
-    if [ ${DB_DRIVER} = sqlite ]; then 
+    if [ ${DB_DRIVER} = sqlite ]; then
       echo "Configure Session Handler for files ..."
       cat >> /opt/src/config/packages/framework.yaml <<EOL
     session:
@@ -261,7 +291,15 @@ function configure {
   local -r _today=$(date +"%Y_%m_%d")
 
   create-apache-vhost "${_name}"
-  create-wrapper-script "${_name}"
+  create-wrapper-scripts "${_name}"
+
+  if [ -z ${JOBS_ENABLED} ] || [ "${JOBS_ENABLED}" != "true" ]; then
+    echo "Use PHP-FPM for running EMS Jobs ..."
+  else
+    echo "Use Supervisord for running EMS Jobs ..."
+    configure-supervisord-eventlistener "${_name}"
+  fi
+
   create-ems-folders
 
   if [[ "$DB_DRIVER" =~ ^.*pgsql$ ]]; then

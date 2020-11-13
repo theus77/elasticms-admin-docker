@@ -66,7 +66,7 @@ services:
     depends_on:
       - ${BATS_STORAGE_SERVICE_NAME}
       - s3
-    command: ["wait-for-it", "${BATS_DB_HOST}:${BATS_DB_PORT}", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+    command: ["wait-for-it", "${BATS_DB_HOST}:${BATS_DB_PORT}", "--", "/usr/bin/supervisord", "-c", "/etc/supervisord/supervisord.conf"]
     networks:
       - default
     build:

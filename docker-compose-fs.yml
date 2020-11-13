@@ -75,7 +75,7 @@ services:
       - ${BATS_STORAGE_SERVICE_NAME}:${BATS_STORAGE_SERVICE_NAME}
     depends_on:
       - ${BATS_STORAGE_SERVICE_NAME}
-    command: ["wait-for-it", "${BATS_DB_HOST}:${BATS_DB_PORT}", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+    command: ["wait-for-it", "${BATS_DB_HOST}:${BATS_DB_PORT}", "--", "/usr/bin/supervisord", "-c", "/etc/supervisord/supervisord.conf"]
     volumes:
       - data_ems:/var/lib/ems
       - config_ems:/opt/secrets
