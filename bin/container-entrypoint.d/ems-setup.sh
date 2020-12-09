@@ -262,8 +262,8 @@ framework:
     php_errors:
         log: true
 
-    templating:
-        engines: ['twig', 'php']
+    fragments:
+    error_controller: 'App\Controller\MyExceptionController'
 
     cache:
         # Put the unique name of your app here: the prefix seed
