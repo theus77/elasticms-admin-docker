@@ -1,5 +1,19 @@
 # elasticms-docker [![Build Status](https://travis-ci.org/ems-project/elasticms-docker.svg?branch=master)](https://travis-ci.org/ems-project/elasticms-docker)
 
+## Prerequisite
+Before launching the bats commands you must defined the following environment variables:
+```dotenv
+ELASTICMS_VERSION=1.14.15 #the elasticms's version you want to test
+```
+You must also install `bats`.
+
+## Commands
+ - `bats test/build.bats` : builds the docker image
+ - `bats test/tests.fs.storage.bats` : tests the image with a file system storage
+ - `bats test/tests.s3.storage.bats` : tests the image with a s3 storage
+ - `bats test/scan.bats` : scan the image with [Clair Scanner](https://github.com/arminc/clair-scanner)
+ 
+
 ElasticMS in Docker containers
 
 # Environment variables
@@ -11,3 +25,7 @@ Use Supervisord for ems jobs running (ems:job:run).
 
 # JOBS_OPTS
 Add parameters to ems:job:run command.
+
+
+# Magick command to remove all
+```docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q) && docker volume rm $(docker volume ls -q)```
