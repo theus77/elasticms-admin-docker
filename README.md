@@ -28,4 +28,13 @@ Add parameters to ems:job:run command.
 
 
 # Magick command to remove all
-```docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q) && docker volume rm $(docker volume ls -q)```
+```docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)```
+
+Caution, it removes every running pods.
+
+If you want to also remove all persisted data in your docker environment:
+`docker volume rm $(docker volume ls -q)`
+
+# Development
+Compress a dump:
+`cd test/dumps/ && tar -zcvf example.tar.gz example.dump && cd -`
