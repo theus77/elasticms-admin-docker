@@ -191,8 +191,8 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
     envsubst < $file > /tmp/$_name
     source /tmp/$_name
 
-    retry 12 5 curl_container ems :9000/status/ -H "'Host: ${SERVER_NAME}'" -s -w %{http_code} -o /dev/null
-    assert_output -l 0 $'401'
+    retry 12 5 curl_container ems :9000/status -H "'Host: ${SERVER_NAME}'" -s -w %{http_code} -o /dev/null
+    assert_output -l 0 $'200'
 
     retry 12 5 curl_container ems :9000/cluster/ -H "'Host: ${SERVER_NAME}'" -s -w %{http_code} -o /dev/null
     assert_output -l 0 $'200'
