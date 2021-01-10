@@ -160,12 +160,15 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
     _basename=$(basename $file)
     _name=${_basename%.*}
 
+    envsubst < $file > /tmp/$_name
+    source /tmp/$_name
+
     environments=(`docker exec ems sh -c "/opt/bin/$_name ems:environment:list"`)
 
     for environment in ${environments[@]}; do
 
       run docker exec ems sh -c "/opt/bin/$_name ems:environment:rebuild $environment --yellow-ok"
-      assert_output -l -r "The alias ${environment} is now pointing to"
+      assert_output -r ".*The alias ${EMS_INSTANCE_ID%_}_${environment} is now point to.*"
 
     done
 
