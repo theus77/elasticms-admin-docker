@@ -26,8 +26,8 @@ script:
   - echo "Stage [Test] - Step [script] ..."
   - bats test/build.bats
   - bats test/scan.bats
-  - bats test/tests.fs.storage.bats
-  - bats test/tests.s3.storage.bats
+#  - bats test/tests.fs.storage.bats
+#  - bats test/tests.s3.storage.bats
 
 after_script:
   - echo "Stage [Test] - Step [after_script] ..."
