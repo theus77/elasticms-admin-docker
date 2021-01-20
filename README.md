@@ -1,4 +1,4 @@
-# elasticms-docker [![Build Status](https://travis-ci.org/ems-project/elasticms-docker.svg?branch=master)](https://travis-ci.org/ems-project/elasticms-docker)
+# elasticms-docker ![Continuous Docker Image Build](https://github.com/ems-project/elasticms-docker/workflows/Continuous%20Docker%20Image%20Build/badge.svg)
 
 ## Prerequisite
 Before launching the bats commands you must defined the following environment variables:

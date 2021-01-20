@@ -6,21 +6,18 @@ load "helpers/dataloaders"
 load "lib/batslib"
 load "lib/output"
 
-export ELASTICMS_VERSION=${ELASTICMS_VERSION:-1.14.19}
-export RELEASE_NUMBER=${RELEASE_NUMBER:-snapshot}
-export BUILD_DATE=${BUILD_DATE:-snapshot}
-export VCS_REF=${VCS_REF:-snapshot}
-
-export BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME=${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME:-clair_local_scanner}
-export BATS_PHP_SCRIPTS_VOLUME_NAME=${BATS_PHP_SCRIPTS_VOLUME_NAME:-php_scripts}
+export BATS_ELASTICMS_ADMIN_VERSION=${ELASTICMS_ADMIN_VERSION:-1.14.33}
+export BATS_RELEASE_NUMBER=${RELEASE_NUMBER:-snapshot}
+export BATS_BUILD_DATE=${BUILD_DATE:-snapshot}
+export BATS_VCS_REF=${VCS_REF:-snapshot}
 
 export BATS_STORAGE_SERVICE_NAME="postgresql"
 
-export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin}:rc"
+export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc}"
 
 docker-compose -f docker-compose-fs.yml build --compress --pull elasticms >&2
 
 @test "[$TEST_FILE] Check Elasticms Docker images build" {
-  run docker inspect --type=image ${BATS_EMS_DOCKER_IMAGE_NAME}
+  run docker inspect --type=image ${BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME}
   [ "$status" -eq 0 ]
 }

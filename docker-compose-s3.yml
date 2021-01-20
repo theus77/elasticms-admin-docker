@@ -29,14 +29,12 @@ services:
       - POSTGRES_USER=${BATS_ROOT_DB_USER}
       - POSTGRES_PASSWORD=${BATS_ROOT_DB_PASSWORD}
       - POSTGRES_DB=${BATS_ROOT_DB_NAME}
-    volumes:
-      - data_pgsql:/var/lib/postgresql/data
     networks:
       - default
     mem_limit: 512m
 
   elasticms:
-    image: ${BATS_EMS_DOCKER_IMAGE_NAME}
+    image: ${BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME}
     container_name: ems
     ports:
       - 9000:9000
@@ -72,10 +70,10 @@ services:
     build:
       context: .
       args:
-        VERSION_ARG: ${ELASTICMS_VERSION}
-        RELEASE_ARG: ${RELEASE_NUMBER}
-        BUILD_DATE_ARG: ${BUILD_DATE}
-        VCS_REF_ARG: ${VCS_REF}
+        VERSION_ARG: ${BATS_ELASTICMS_ADMIN_VERSION}
+        RELEASE_ARG: ${BATS_RELEASE_NUMBER}
+        BUILD_DATE_ARG: ${BATS_BUILD_DATE}
+        VCS_REF_ARG: ${BATS_VCS_REF}
     mem_limit: 512m
 
   elasticsearch_1:
@@ -87,8 +85,6 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - "xpack.security.enabled=false"
       - "discovery.zen.minimum_master_nodes=1"
-    volumes:
-      - data_es_1:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -109,8 +105,6 @@ services:
       - "discovery.zen.ping.unicast.hosts=elasticsearch_1"
       - "xpack.security.enabled=false"
       - "discovery.zen.minimum_master_nodes=1"
-    volumes:
-      - data_es_2:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -122,28 +116,9 @@ services:
   redis:
     image: centos/redis-5-centos7
     container_name: redis
-    volumes:
-      - data_redis:/var/lib/redis/data
     networks:
       - default
     mem_limit: 512m
-
-volumes:
-  data_redis:
-    external:
-      name: ${BATS_REDIS_VOLUME_NAME}
-  data_pgsql:
-    external:
-      name: ${BATS_PGSQL_VOLUME_NAME}
-  data_es_1:
-    external:
-      name: ${BATS_ES_1_VOLUME_NAME}
-  data_es_2:
-    external:
-      name: ${BATS_ES_2_VOLUME_NAME}
-  clair_config:
-    external:
-      name: ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME}
 
 networks:
   default:

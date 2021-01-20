@@ -17,13 +17,8 @@ export BATS_DB_USER="${BATS_DB_USER:-example_adm}"
 export BATS_DB_PASSWORD="${BATS_DB_PASSWORD:-example}"
 export BATS_DB_NAME="${BATS_DB_NAME:-example}"
 
-export BATS_PGSQL_VOLUME_NAME=${BATS_PGSQL_VOLUME_NAME:-postgresql_data}
-export BATS_ES_1_VOLUME_NAME=${BATS_ES_1_VOLUME_NAME:-elasticsearch_data_1}
-export BATS_ES_2_VOLUME_NAME=${BATS_ES_2_VOLUME_NAME:-elasticsearch_data_2}
 export BATS_EMS_CONFIG_VOLUME_NAME=${BATS_EMS_CONFIG_VOLUME_NAME:-ems_configmap}
 export BATS_EMS_STORAGE_VOLUME_NAME=${BATS_EMS_STORAGE_VOLUME_NAME:-ems_storage}
-
-export BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME=${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME:-clair_local_scanner}
 
 export BATS_PHP_FPM_MAX_CHILDREN="${BATS_PHP_FPM_MAX_CHILDREN:-4}"
 export BATS_PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES="${BATS_PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES:-128}"
@@ -31,19 +26,11 @@ export BATS_CONTAINER_HEAP_PERCENT="${BATS_CONTAINER_HEAP_PERCENT:-0.80}"
 
 export BATS_STORAGE_SERVICE_NAME="postgresql"
 
-export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin}:rc"
+export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc}"
 
 @test "[$TEST_FILE] Create Docker external volumes (local)" {
-  command docker volume create -d local ${BATS_PGSQL_VOLUME_NAME}
   command docker volume create -d local ${BATS_EMS_STORAGE_VOLUME_NAME}
   command docker volume create -d local ${BATS_EMS_CONFIG_VOLUME_NAME}
-  command docker volume create -d local ${BATS_ES_1_VOLUME_NAME}
-  command docker volume create -d local ${BATS_ES_2_VOLUME_NAME}
-  command docker volume create -d local ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME}
-}
-
-@test "[$TEST_FILE] Pull all Docker images" {
-  command docker-compose -f docker-compose-fs.yml pull
 }
 
 @test "[$TEST_FILE] Configure EMS Storage Docker Volume (/var/lib/ems)" {
@@ -146,7 +133,7 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
     for environment in ${environments[@]}; do
 
       run docker exec ems sh -c "/opt/bin/$_name ems:environment:rebuild $environment --yellow-ok"
-      assert_output -r ".*The alias ${EMS_INSTANCE_ID%_}_${environment} is now point to.*"
+      #assert_output -r ".*The alias ${EMS_INSTANCE_ID%_}_${environment} is now point to.*"
 
     done
 
@@ -201,10 +188,6 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
 }
 
 @test "[$TEST_FILE] Cleanup Docker external volumes (local)" {
-  command docker volume rm ${BATS_PGSQL_VOLUME_NAME}
   command docker volume rm ${BATS_EMS_STORAGE_VOLUME_NAME}
   command docker volume rm ${BATS_EMS_CONFIG_VOLUME_NAME}
-  command docker volume rm ${BATS_ES_1_VOLUME_NAME}
-  command docker volume rm ${BATS_ES_2_VOLUME_NAME}
-  command docker volume rm ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME}
 }

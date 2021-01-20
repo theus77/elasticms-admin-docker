@@ -1,39 +1,6 @@
 version: "2"
 
 services:
-  clair_db:
-    image: arminc/clair-db:latest
-    container_name: clair_db
-    networks:
-      - default
-    mem_limit: 512m
-
-  clair_local_scan:
-    image: arminc/clair-local-scan:latest
-    container_name: clair_local_scan
-    links:
-      - clair_db:postgres
-    depends_on:
-      - clair_db
-    networks:
-      - default
-    mem_limit: 512m
-
-  clair_local_scanner:
-    image: zebby76/clair-scanner:latest
-    container_name: clair_local_scanner
-    command: ["--clair","${BATS_CLAIR_LOCAL_ENDPOINT_URL}","--ip","${BATS_CLAIR_LOCAL_SCANNER_IP}","--all","-l","/opt/clair/config/clair-report.log","-r","/opt/clair/config/clair-report.json","-w","/opt/clair/config/clair-whitelist.yml","${BATS_CLAIR_SCAN_DOCKER_IMAGE_NAME}"]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - clair_config:/opt/clair/config
-    links:
-      - clair_db:postgres
-    depends_on:
-      - clair_db
-    networks:
-      - default
-    mem_limit: 512m
-
   tika:
     image: docker.io/smalswebtech/tika-server:latest
     container_name: tika
@@ -48,14 +15,12 @@ services:
       - POSTGRES_USER=${BATS_ROOT_DB_USER}
       - POSTGRES_PASSWORD=${BATS_ROOT_DB_PASSWORD}
       - POSTGRES_DB=${BATS_ROOT_DB_NAME}
-    volumes:
-      - data_pgsql:/var/lib/postgresql/data
     networks:
       - default
     mem_limit: 512m
 
   elasticms:
-    image: ${BATS_EMS_DOCKER_IMAGE_NAME}
+    image: ${BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME}
     container_name: ems
     ports:
       - 9000:9000
@@ -84,10 +49,10 @@ services:
     build:
       context: .
       args:
-        VERSION_ARG: ${ELASTICMS_VERSION}
-        RELEASE_ARG: ${RELEASE_NUMBER}
-        BUILD_DATE_ARG: ${BUILD_DATE}
-        VCS_REF_ARG: ${VCS_REF}
+        VERSION_ARG: ${BATS_ELASTICMS_ADMIN_VERSION}
+        RELEASE_ARG: ${BATS_RELEASE_NUMBER}
+        BUILD_DATE_ARG: ${BATS_BUILD_DATE}
+        VCS_REF_ARG: ${BATS_VCS_REF}
     mem_limit: 512m
 
   elasticsearch_1:
@@ -99,8 +64,6 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - "xpack.security.enabled=false"
       - "discovery.zen.minimum_master_nodes=1"
-    volumes:
-      - data_es_1:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -121,8 +84,6 @@ services:
       - "discovery.zen.ping.unicast.hosts=elasticsearch_1"
       - "xpack.security.enabled=false"
       - "discovery.zen.minimum_master_nodes=1"
-    volumes:
-      - data_es_2:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -132,24 +93,12 @@ services:
     mem_limit: 1024m
 
 volumes:
-  data_pgsql:
-    external:
-      name: ${BATS_PGSQL_VOLUME_NAME}
   data_ems:
     external:
       name: ${BATS_EMS_STORAGE_VOLUME_NAME}
-  data_es_1:
-    external:
-      name: ${BATS_ES_1_VOLUME_NAME}
-  data_es_2:
-    external:
-      name: ${BATS_ES_2_VOLUME_NAME}
   config_ems:
     external:
       name: ${BATS_EMS_CONFIG_VOLUME_NAME}
-  clair_config:
-    external:
-      name: ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME}
 
 networks:
   default:

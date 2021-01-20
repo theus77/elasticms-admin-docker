@@ -1,7 +1,0 @@
-generalwhitelist: #Approve CVE for any image
-  CVE-2016-4074: jq # false-positive : https://github.com/quay/clair/issues/852
-  CVE-2020-28928: musl
-  CVE-2020-8286: curl
-  CVE-2020-8231: curl
-  CVE-2020-8285: curl
-  CVE-2020-1971: openssl
