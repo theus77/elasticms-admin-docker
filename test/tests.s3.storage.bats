@@ -27,18 +27,9 @@ export BATS_S3_ACCESS_KEY_ID="mock"
 export BATS_S3_SECRET_ACCESS_KEY="mock"
 export BATS_S3_DEFAULT_REGION="us-east-1"
 
-export BATS_PGSQL_VOLUME_NAME=${BATS_PGSQL_VOLUME_NAME:-postgresql_data}
-export BATS_ES_1_VOLUME_NAME=${BATS_ES_1_VOLUME_NAME:-elasticsearch_data_1}
-export BATS_ES_2_VOLUME_NAME=${BATS_ES_2_VOLUME_NAME:-elasticsearch_data_2}
-export BATS_EMS_CONFIG_VOLUME_NAME=${BATS_EMS_CONFIG_VOLUME_NAME:-ems_configmap}
-export BATS_EMS_STORAGE_VOLUME_NAME=${BATS_EMS_STORAGE_VOLUME_NAME:-ems_storage}
-export BATS_REDIS_VOLUME_NAME=${BATS_REDIS_VOLUME_NAME:-redis_storage}
-
 export AWS_ACCESS_KEY_ID="${BATS_S3_ACCESS_KEY_ID}"
 export AWS_SECRET_ACCESS_KEY="${BATS_S3_SECRET_ACCESS_KEY}"
 export AWS_DEFAULT_REGION="${BATS_S3_DEFAULT_REGION}"
-
-export BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME=${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME:-clair_local_scanner}
 
 export BATS_PHP_FPM_MAX_CHILDREN="${BATS_PHP_FPM_MAX_CHILDREN:-4}"
 export BATS_PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES="${BATS_PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES:-128}"
@@ -46,19 +37,7 @@ export BATS_CONTAINER_HEAP_PERCENT="${BATS_CONTAINER_HEAP_PERCENT:-0.80}"
 
 export BATS_STORAGE_SERVICE_NAME="postgresql"
 
-export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin}:rc"
-
-@test "[$TEST_FILE] Create Docker external volumes (local)" {
-  command docker volume create -d local ${BATS_PGSQL_VOLUME_NAME}
-  command docker volume create -d local ${BATS_ES_1_VOLUME_NAME}
-  command docker volume create -d local ${BATS_ES_2_VOLUME_NAME}
-  command docker volume create -d local ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME}
-  command docker volume create -d local ${BATS_REDIS_VOLUME_NAME}
-}
-
-@test "[$TEST_FILE] Pull all Docker images" {
-  command docker-compose -f docker-compose-s3.yml pull
-}
+export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc}"
 
 @test "[$TEST_FILE] Starting Elasticms Storage Services (S3, PostgreSQL, Elasticsearch, Redis)" {
   command docker-compose -f docker-compose-s3.yml up -d s3 postgresql elasticsearch_1 elasticsearch_2 redis
@@ -134,7 +113,6 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
     docker_wait_for_log ems 15 "Elasticms warming up for \[ ${_name} \] CMS Domain run successfully ..."
   done
 
-  docker_wait_for_log ems 15 "Configure Session Handler for Redis"
   docker_wait_for_log ems 15 "NOTICE: ready to handle connections"
   docker_wait_for_log ems 15 "AH00292: Apache/.* \(Unix\) OpenSSL/.* configured -- resuming normal operations"
 
@@ -161,22 +139,27 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
     _basename=$(basename $file)
     _name=${_basename%.*}
 
+    envsubst < $file > /tmp/$_name
+    source /tmp/$_name
+
     environments=(`docker exec ems sh -c "/opt/bin/$_name ems:environment:list"`)
 
     for environment in ${environments[@]}; do
 
       run docker exec ems sh -c "/opt/bin/$_name ems:environment:rebuild $environment --yellow-ok"
-      assert_output -l -r "The alias ${environment} is now pointing to"
+      #assert_output -r ".*The alias ${EMS_INSTANCE_ID%_}_${environment} is now point to.*"
 
     done
 
   done
 }
 
-@test "[$TEST_FILE] Check for Redis session handler" {
-  run docker exec -it redis sh -c ". /opt/rh/rh-redis5/enable && redis-cli --scan"
-  assert_output -l -r "^.*sf.*$"
-}
+# Test session presence in Redis
+#
+# @test "[$TEST_FILE] Check for Redis session handler" {
+#   run docker exec -it redis sh -c ". /opt/rh/rh-redis5/enable && redis-cli --scan"
+#   assert_output -l -r "^.*sf.*$"
+# }
 
 @test "[$TEST_FILE] Check for Elasticms Default Index page response code 200" {
   retry 12 5 curl_container ems :9000/index.php -H 'Host: default.localhost' -s -w %{http_code} -o /dev/null
@@ -191,8 +174,8 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
     envsubst < $file > /tmp/$_name
     source /tmp/$_name
 
-    retry 12 5 curl_container ems :9000/status/ -H "'Host: ${SERVER_NAME}'" -s -w %{http_code} -o /dev/null
-    assert_output -l 0 $'401'
+    retry 12 5 curl_container ems :9000/status -H "'Host: ${SERVER_NAME}'" -s -w %{http_code} -o /dev/null
+    assert_output -l 0 $'200'
 
     retry 12 5 curl_container ems :9000/cluster/ -H "'Host: ${SERVER_NAME}'" -s -w %{http_code} -o /dev/null
     assert_output -l 0 $'200'
@@ -223,12 +206,4 @@ export BATS_EMS_DOCKER_IMAGE_NAME="${EMS_DOCKER_IMAGE_NAME:-docker.io/elasticms/
 @test "[$TEST_FILE] Stop all and delete test containers" {
   command docker-compose -f docker-compose-s3.yml stop
   command docker-compose -f docker-compose-s3.yml rm -v -f  
-}
-
-@test "[$TEST_FILE] Cleanup Docker external volumes (local)" {
-  command docker volume rm ${BATS_PGSQL_VOLUME_NAME}
-  command docker volume rm ${BATS_ES_1_VOLUME_NAME}
-  command docker volume rm ${BATS_ES_2_VOLUME_NAME}
-  command docker volume rm ${BATS_CLAIR_LOCAL_SCANNER_CONFIG_VOLUME_NAME} 
-  command docker volume rm ${BATS_REDIS_VOLUME_NAME} 
 }
