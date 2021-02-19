@@ -15,7 +15,7 @@ RUN echo "Download and install ElastiCMS ..." \
     && COMPOSER_MEMORY_LIMIT=-1 composer -vvvv install --no-interaction --no-suggest --no-scripts --working-dir /opt/src -o  \
     && rm -rf /opt/src/bootstrap/cache/* /opt/src/.env /opt/src/.env.dist 
 
-FROM docker.io/elasticms/base-php-apache:7.4
+FROM docker.io/elasticms/base-apache-fpm:7.4
 
 ARG VERSION_ARG=""
 ARG RELEASE_ARG=""
