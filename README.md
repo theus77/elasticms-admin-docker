@@ -26,6 +26,9 @@ Use Supervisord for ems jobs running (ems:job:run).
 # JOBS_OPTS
 Add parameters to ems:job:run command.
 
+# CHECK_ALIAS_OPTS
+Add parameters to ems:check:aliases command. Default value `--repair`.
+
 
 # Magick command to remove all
 ```docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)```

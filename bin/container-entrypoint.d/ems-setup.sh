@@ -98,6 +98,7 @@ echo ---
 echo Running ems-jobs for [ $_instance_name ]
 echo ---
 
+/opt/bin/$_instance_name ems:check:aliases ${CHECK_ALIAS_OPTS:---repair}
 /opt/bin/$_instance_name ems:job:run ${JOBS_OPTS}
 
 EOL
