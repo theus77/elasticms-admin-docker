@@ -48,7 +48,7 @@ jobs:
 
       - name: Fill GHCR Docker ElasticMS Admin Image metadata
         id: meta_ghcr
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: crazy-max/ghaction-docker-meta@v2.2.1
         with:
           images: "${{ steps.prep.outputs.ghcr_image }}"
           tag-sha: false
@@ -63,7 +63,7 @@ jobs:
 
       - name: Fill DockerHub Docker ElasticMS Admin Image metadata
         id: meta_dockerhub
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: crazy-max/ghaction-docker-meta@v2.2.1
         with:
           images: "${{ steps.prep.outputs.dockerhub_image }}"
           tag-sha: false
