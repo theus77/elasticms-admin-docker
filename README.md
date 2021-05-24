@@ -29,6 +29,10 @@ Add parameters to ems:job:run command.
 # CHECK_ALIAS_OPTS
 Add parameters to ems:check:aliases command. Default value `--repair`.
 
+# PUID
+Define the user identifier. Default value `1001`.
+
+
 
 # Magick command to remove all
 ```docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)```

@@ -44,11 +44,11 @@ COPY --from=builder /opt/src /opt/src
 RUN echo "Setup permissions on filesystem for non-privileged user ..." \
     && mkdir -p /var/lib/ems \
     && chmod -Rf +x /opt/bin /var/lib/ems \ 
-    && chown -Rf 1001:0 /opt /var/lib/ems \
+    && chown -Rf ${PUID:-1001}:0 /opt /var/lib/ems \
     && chmod -R ug+rw /opt /var/lib/ems \
     && find /opt -type d -exec chmod ug+x {} \; 
 
-USER 1001
+USER ${PUID:-1001}
 
 HEALTHCHECK --start-period=10s --interval=1m --timeout=5s --retries=5 \
         CMD curl --fail --header "Host: default.localhost" http://localhost:9000/index.php || exit 1
