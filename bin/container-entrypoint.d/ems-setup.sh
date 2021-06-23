@@ -184,19 +184,19 @@ EOL
   cat /tmp/$_name | sed '/^\s*$/d' | grep  -v '^#' | sed "s/\([a-zA-Z0-9_]*\)\=\(.*\)/        SetEnv \1 \2/g" >> /etc/apache2/conf.d/$_name.conf
 
   if ! [ -z ${BASE_URL+x} ]; then
-    echo "Configure Apache Proxy Load Balancer for Elasticsearch Cluster [ ${ELASTICSEARCH_CLUSTER} ] ..."
+    echo "Configure Apache Proxy Load Balancer for Elasticsearch Cluster [ ${EMS_ELASTICSEARCH_HOSTS} ] ..."
     cat >> /etc/apache2/conf.d/$_name.conf << EOL
         ProxyRequests On
 
         <Proxy balancer://myset>
 EOL
-    echo $ELASTICSEARCH_CLUSTER | sed "s/,/\n/g" | sed "s/[\s\[\"]*\([^\"]*\)\".*/          BalancerMember \1/"  >> /etc/apache2/conf.d/$_name.conf
+    echo $EMS_ELASTICSEARCH_HOSTS | sed "s/,/\n/g" | sed "s/[\s\[\"]*\([^\"]*\)\".*/          BalancerMember \1/"  >> /etc/apache2/conf.d/$_name.conf
     cat >> /etc/apache2/conf.d/$_name.conf << EOL
           #ProxySet lbmethod=byrequests
         </Proxy>
 EOL
 
-    echo $ELASTICSEARCH_CLUSTER | sed "s/,/\n/g" | sed "s/[\s\[\"]*\([^\"]*\)\".*/\1/" | grep ".*https.*" && echo "        SSLProxyEngine On" >> /etc/apache2/conf.d/$_name.conf
+    echo $EMS_ELASTICSEARCH_HOSTS | sed "s/,/\n/g" | sed "s/[\s\[\"]*\([^\"]*\)\".*/\1/" | grep ".*https.*" && echo "        SSLProxyEngine On" >> /etc/apache2/conf.d/$_name.conf
 
     echo "Configure Apache Location for [ ${BASE_URL} ] ..."
     cat >> /etc/apache2/conf.d/$_name.conf << EOL
