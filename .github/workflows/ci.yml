@@ -99,7 +99,7 @@ jobs:
 
       - name: Build GHCR ElasticMS Admin Docker Image
         id: build_ghcr_image
-        uses: docker/build-push-action@v2.4.0
+        uses: docker/build-push-action@v2.6.1
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
@@ -129,7 +129,7 @@ jobs:
 
       - name: Push GHCR ElasticMS Admin Docker Image
         id: push_ghcr
-        uses: docker/build-push-action@v2.4.0
+        uses: docker/build-push-action@v2.6.1
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
@@ -145,7 +145,7 @@ jobs:
 
       - name: Push DockerHub ElasticMS Admin Docker Image
         id: push_dockerhub
-        uses: docker/build-push-action@v2.4.0
+        uses: docker/build-push-action@v2.6.1
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
