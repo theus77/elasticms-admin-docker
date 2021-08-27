@@ -155,10 +155,6 @@ EOL
         FallbackResource /index.php
     </Directory>
 
-    <Directory /opt/src/project/public/bundles>
-        FallbackResource disabled
-    </Directory>
-
     ErrorLog /dev/stderr
     CustomLog /dev/stdout common
 
