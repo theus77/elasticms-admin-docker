@@ -261,7 +261,7 @@ function configure {
   fi
 
   echo "Running Elasticms cache warming up for [ $_name ] CMS Domain ..."
-  /opt/bin/$_name cache:warm --no-interaction
+  /opt/bin/$_name cache:warm --no-interaction --env=prod
   if [ $? -eq 0 ]; then
     echo "Elasticms warming up for [ $_name ] CMS Domain run successfully ..."
   else
