@@ -79,9 +79,9 @@ if [ \${1:-list} = sql ] || [ \${1:-list} = dump ] ; then
     fi;
   elif [ \${DB_DRIVER:-mysql} = pgsql ] ; then
     if [ \${1:-list} = sql ] ; then
-      psql \${DB_DRIVER}://\${DB_USER}:\${DB_PASSWORD}@\${DB_HOST}:\${DB_PORT}/\${DB_NAME}?connect_timeout=2 \${@:2}
+      psql postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?connect_timeout=2 \${@:2}
     else
-      pg_dump \${DB_DRIVER}://\${DB_USER}:\${DB_PASSWORD}@\${DB_HOST}:\${DB_PORT}/\${DB_NAME}?connect_timeout=2 -w --clean -Fp -O --schema=\${DB_SCHEMA:-public} | sed "/^\(DROP\|ALTER\|CREATE\) SCHEMA.*\$/d"
+      pg_dump postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?connect_timeout=2 -w --clean -Fp -O --schema=\${DB_SCHEMA:-public} | sed "/^\(DROP\|ALTER\|CREATE\) SCHEMA.*\$/d"
     fi;
   else
     echo Driver \$DB_DRIVER not supported
@@ -233,7 +233,7 @@ function configure {
   if [[ "$DB_DRIVER" =~ ^.*pgsql$ ]]; then
     if [[ "$DB_USER" =~ ^.*_(chg)$ ]]; then
       echo "Startup DBCR() ..."
-      psql \${DB_DRIVER}://\${DB_USER}:\${DB_PASSWORD}@\${DB_HOST}:\${DB_PORT}/\${DB_NAME}?connect_timeout=2 -c 'select * from start_dbcr();'
+      psql postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?connect_timeout=2 -c 'select * from start_dbcr();'
     fi
   fi
 
@@ -248,7 +248,7 @@ function configure {
   if [[ "$DB_DRIVER" =~ ^.*pgsql$ ]]; then
     if [[ "$DB_USER" =~ ^.*_(chg)$ ]]; then
       echo "Stop DBCR() ..."
-      psql \${DB_DRIVER}://\${DB_USER}:\${DB_PASSWORD}@\${DB_HOST}:\${DB_PORT}/\${DB_NAME}?connect_timeout=2 -c 'select * from stop_dbcr();'
+      psql postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?connect_timeout=2 -c 'select * from stop_dbcr();'
     fi
   fi
 
