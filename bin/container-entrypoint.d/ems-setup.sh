@@ -235,7 +235,7 @@ function configure {
   if [[ "$DB_DRIVER" =~ ^.*pgsql$ ]]; then
     if [[ "$DB_USER" =~ ^.*_(chg)$ ]]; then
       echo "Startup DBCR() ..."
-      psql postgresql://${DB_USER}:${DB_PASSWORD_ENCODED}@$${DB_HOST//,/:${DB_PORT},}:${DB_PORT}/${DB_NAME}?connect_timeout=${DB_CONNECTION_TIMEOUT:-30} -c 'select * from start_dbcr();'
+      psql postgresql://${DB_USER}:${DB_PASSWORD_ENCODED}@${DB_HOST//,/:${DB_PORT},}:${DB_PORT}/${DB_NAME}?connect_timeout=${DB_CONNECTION_TIMEOUT:-30} -c 'select * from start_dbcr();'
     fi
   fi
 
@@ -250,7 +250,7 @@ function configure {
   if [[ "$DB_DRIVER" =~ ^.*pgsql$ ]]; then
     if [[ "$DB_USER" =~ ^.*_(chg)$ ]]; then
       echo "Stop DBCR() ..."
-      psql postgresql://${DB_USER}:${DB_PASSWORD_ENCODED}@$${DB_HOST//,/:${DB_PORT},}:${DB_PORT}/${DB_NAME}?connect_timeout=${DB_CONNECTION_TIMEOUT:-30} -c 'select * from stop_dbcr();'
+      psql postgresql://${DB_USER}:${DB_PASSWORD_ENCODED}@${DB_HOST//,/:${DB_PORT},}:${DB_PORT}/${DB_NAME}?connect_timeout=${DB_CONNECTION_TIMEOUT:-30} -c 'select * from stop_dbcr();'
     fi
   fi
 
