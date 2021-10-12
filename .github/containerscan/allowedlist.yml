@@ -1,15 +1,8 @@
 general:
   vulnerabilities:
-     - CVE-2019-20477
-     - CVE-2020-14343
-     - CVE-2020-1747 
-#    - CVE-2020-1971
-#    - CVE-2018-1000620
-#    - CVE-2018-3750
-#    - CVE-2018-16492
-#    - CVE-2019-19919
-#    - GHSA-q42p-pg8m-cqh6
-#    - CVE-2019-10744
+#     - CVE-2019-20477
+#     - CVE-2020-14343
+#     - CVE-2020-1747 
   bestPracticeViolations:
 #    - CIS-DI-0005
 #    - DKL-LI-0003
