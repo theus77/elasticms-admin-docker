@@ -159,6 +159,8 @@ EOL
 
     ErrorLog /dev/stderr
     CustomLog /dev/stdout common
+    RewriteEngine On
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
 EOL
 
@@ -168,7 +170,6 @@ EOL
     cat >> /etc/apache2/conf.d/$_name.conf << EOL
         Alias $ALIAS /opt/src/public
 
-        RewriteEngine  on
         RewriteCond %{REQUEST_URI} !^$ALIAS/index.php
         RewriteCond %{REQUEST_URI} !^$ALIAS/bundles
         RewriteCond %{REQUEST_URI} !^$ALIAS/favicon.ico\$
