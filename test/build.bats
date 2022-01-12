@@ -6,7 +6,7 @@ load "helpers/dataloaders"
 load "lib/batslib"
 load "lib/output"
 
-export BATS_ELASTICMS_ADMIN_VERSION=${ELASTICMS_ADMIN_VERSION:-1.14.33}
+export BATS_ELASTICMS_ADMIN_VERSION=${ELASTICMS_ADMIN_VERSION:-1.17.10}
 export BATS_RELEASE_NUMBER=${RELEASE_NUMBER:-snapshot}
 export BATS_BUILD_DATE=${BUILD_DATE:-snapshot}
 export BATS_VCS_REF=${VCS_REF:-snapshot}
