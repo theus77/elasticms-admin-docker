@@ -8,13 +8,13 @@ load "lib/output"
 
 export BATS_ROOT_DB_USER="${BATS_ROOT_DB_USER:-root}"
 export BATS_ROOT_DB_PASSWORD="${BATS_ROOT_DB_PASSWORD:-password}"
-export BATS_ROOT_DB_NAME="${BATS_ROOT_DB_PASSWORD:-root}"
+export BATS_ROOT_DB_NAME="${BATS_ROOT_DB_NAME:-root}"
 
 export BATS_DB_DRIVER="${BATS_DB_DRIVER:-pgsql}"
 export BATS_DB_HOST="${BATS_DB_HOST:-postgresql}"
 export BATS_DB_PORT="${BATS_DB_PORT:-5432}"
 export BATS_DB_USER="${BATS_DB_USER:-example_adm}"
-export BATS_DB_PASSWORD="${BATS_DB_PASSWORD:-example}"
+export BATS_DB_PASSWORD="${BATS_DB_PASSWORD:-abcd@.<efgh>.}"
 export BATS_DB_NAME="${BATS_DB_NAME:-example}"
 
 export BATS_REDIS_HOST="${BATS_REDIS_HOST:-redis}"
