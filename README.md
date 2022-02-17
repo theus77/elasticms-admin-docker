@@ -26,9 +26,6 @@ Use Supervisord for ems jobs running (ems:job:run).
 # JOBS_OPTS
 Add parameters to ems:job:run command.
 
-# CHECK_ALIAS_OPTS
-Add parameters to ems:check:aliases command. Default value `--repair`.
-
 # PUID
 Define the user identifier. Default value `1001`.
 

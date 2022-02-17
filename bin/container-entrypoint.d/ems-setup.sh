@@ -46,7 +46,7 @@ function configure-supervisord-eventlistener {
   mkdir -p /etc/supervisord/supervisord.d
 
   cat >/etc/supervisord/supervisord.d/$_instance_name.ini <<EOL
-[eventlistener:ems-jobs]
+[eventlistener:$_instance_name]
 command=/opt/bin/supervisord-event-listener.py /opt/bin/ems-jobs/$_instance_name
 events=TICK_60
 autorestart=false
@@ -99,7 +99,6 @@ echo ---
 echo Running ems-jobs for [ $_instance_name ]
 echo ---
 
-/opt/bin/$_instance_name ems:check:aliases ${CHECK_ALIAS_OPTS:---repair}
 /opt/bin/$_instance_name ems:job:run ${JOBS_OPTS}
 
 EOL
