@@ -194,10 +194,13 @@ EOL
 
 }
 
-function configure {
-  local -r _name=$1
+# fork a subprocess
+function configure (
 
+  local -r _name=$1
   local -r _today=$(date +"%Y_%m_%d")
+
+  source /tmp/${_name}
 
   create-apache-vhost "${_name}"
   create-wrapper-scripts "${_name}"
@@ -249,7 +252,7 @@ function configure {
     echo "Warning: something doesn't work with Elasticms cache warming up !"
   fi
 
-}
+)
 
 function install {
 
@@ -268,7 +271,6 @@ function install {
       echo "Install [ $name ] CMS Domain from S3 Bucket [ $config ] file ..."
 
       aws s3 cp s3://${AWS_S3_CONFIG_BUCKET_NAME%/}/$config ${AWS_CLI_EXTRA_ARGS} - | envsubst > /tmp/$name
-      source /tmp/$name
 
       configure "${name}"
 
@@ -288,7 +290,6 @@ function install {
       echo "Install [ $name ] CMS Domain from FS Folder /opt/secrets/ [ $filename ] file ..."
 
       envsubst < $file > /tmp/$name
-      source /tmp/$name
 
       configure "${name}"
 
@@ -308,7 +309,6 @@ function install {
       echo "Install [ $name ] CMS Domain from FS Folder /opt/configs/ [ $filename ] file ..."
 
       envsubst < $file > /tmp/$name
-      source /tmp/$name
 
       configure "${name}"
 
@@ -321,7 +321,6 @@ function install {
     echo "Install [ default ] CMS Domain from Environment variables ..."
 
     env | envsubst > /tmp/default
-    source /tmp/default
 
     configure "default"
 

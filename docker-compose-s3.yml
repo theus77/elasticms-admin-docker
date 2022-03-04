@@ -76,15 +76,18 @@ services:
         VCS_REF_ARG: ${BATS_VCS_REF}
     mem_limit: 512m
 
-  elasticsearch_1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.11
-    container_name: elasticsearch_1
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+    container_name: es01
     environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
+      - "cluster.name=docker-cluster"  
+      - "node.name=es01"
+      - "discovery.seed_hosts=es02,es03"
+      - "cluster.initial_master_nodes=es01,es02,es03"
+      - "bootstrap.memory_lock=true"
+      - "node.store.allow_mmap=false"
+      - "index.store.type=niofs"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "xpack.security.enabled=false"
-      - "discovery.zen.minimum_master_nodes=1"
     ulimits:
       memlock:
         soft: -1
@@ -94,17 +97,37 @@ services:
     networks:
       - default
     mem_limit: 1024m
-
-  elasticsearch_2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.11
-    container_name: elasticsearch_2
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+    container_name: es02
     environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
+      - "cluster.name=docker-cluster"  
+      - "node.name=es02"
+      - "discovery.seed_hosts=es01,es03"
+      - "cluster.initial_master_nodes=es01,es02,es03"
+      - "bootstrap.memory_lock=true"
+      - "node.store.allow_mmap=false"
+      - "index.store.type=niofs"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch_1"
-      - "xpack.security.enabled=false"
-      - "discovery.zen.minimum_master_nodes=1"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - default
+    mem_limit: 1024m
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+    container_name: es03
+    environment:
+      - "cluster.name=docker-cluster"  
+      - "node.name=es03"
+      - "discovery.seed_hosts=es01,es02"
+      - "cluster.initial_master_nodes=es01,es02,es03"
+      - "bootstrap.memory_lock=true"
+      - "node.store.allow_mmap=false"
+      - "index.store.type=niofs"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
         soft: -1

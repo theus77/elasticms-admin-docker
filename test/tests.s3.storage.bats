@@ -40,10 +40,11 @@ export BATS_STORAGE_SERVICE_NAME="postgresql"
 export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc}"
 
 @test "[$TEST_FILE] Starting Elasticms Storage Services (S3, PostgreSQL, Elasticsearch, Redis)" {
-  command docker-compose -f docker-compose-s3.yml up -d s3 postgresql elasticsearch_1 elasticsearch_2 redis
+  command docker-compose -f docker-compose-s3.yml up -d s3 postgresql es01 es02 es03 redis
   docker_wait_for_log postgresql 240 "LOG:  autovacuum launcher started"
-  docker_wait_for_log elasticsearch_1 240 "\[INFO \]\[o.e.n.Node.*\] \[.*\] started"
-  docker_wait_for_log elasticsearch_2 240 "\[INFO \]\[o.e.n.Node.*\] \[.*\] started"
+  docker_wait_for_log es01 120 ".*\"type\": \"server\", \"timestamp\": \".*\", \"level\": \".*\", \"component\": \".*\", \"cluster.name\": \".*\", \"node.name\": \".*\", \"message\": \"started\".*"
+  docker_wait_for_log es02 120 ".*\"type\": \"server\", \"timestamp\": \".*\", \"level\": \".*\", \"component\": \".*\", \"cluster.name\": \".*\", \"node.name\": \".*\", \"message\": \"started\".*"
+  docker_wait_for_log es03 120 ".*\"type\": \"server\", \"timestamp\": \".*\", \"level\": \".*\", \"component\": \".*\", \"cluster.name\": \".*\", \"node.name\": \".*\", \"message\": \"started\".*"
   docker_wait_for_log s3 240 "Ready."
   docker_wait_for_log redis 240 "Ready to accept connections"
 }
@@ -94,7 +95,7 @@ export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NA
 }
 
 @test "[$TEST_FILE] Starting Elasticms services (webserver, php-fpm) configured for AWS S3" {
-  export BATS_ES_LOCAL_ENDPOINT_URL=http://$(docker_ip elasticsearch_1):9200
+  export BATS_ES_LOCAL_ENDPOINT_URL=http://$(docker_ip es01):9200
   export BATS_S3_ENDPOINT_URL=http://$(docker_ip s3):4572
   export BATS_TIKA_LOCAL_ENDPOINT_URL=http://$(docker_ip tika):9998
   export BATS_REDIS_HOST=$(docker_ip redis)
