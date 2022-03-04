@@ -142,7 +142,7 @@ export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NA
 }
 
 @test "[$TEST_FILE] Check for Elasticms Default Index page response code 200" {
-  retry 12 5 curl_container ems :9000/index.php -H 'Host: default.localhost' -s -w %{http_code} -o /dev/null
+  retry 12 5 curl_container ems :9000/index.php -H "Host: default.localhost" -s -w %{http_code} -o /dev/null
   assert_output -l 0 $'200'
 }
 
@@ -154,10 +154,10 @@ export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NA
     envsubst < $file > /tmp/$_name
     source /tmp/$_name
 
-    retry 12 5 curl_container ems :9000/status -H "'Host: ${SERVER_NAME}'" -s -w %{http_code} -o /dev/null
+    retry 12 5 curl_container ems :9000/status -H "Host: ${SERVER_NAME}" -s -w %{http_code} -o /dev/null
     assert_output -l 0 $'200'
 
-    retry 12 5 curl_container ems :9000/health_check.json -H "'Host: ${SERVER_NAME}'" -s -w %{http_code} -o /dev/null
+    retry 12 5 curl_container ems :9000/health_check.json -H "Host: ${SERVER_NAME}" -s -w %{http_code} -o /dev/null
     assert_output -l 0 $'200'
 
     rm /tmp/$_name
@@ -166,17 +166,17 @@ export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NA
 }
 
 @test "[$TEST_FILE] Check for Monitoring /real-time-status page response code 200" {
-  retry 12 5 curl_container ems :9000/real-time-status -H 'Host: default.localhost' -s -w %{http_code} -o /dev/null
+  retry 12 5 curl_container ems :9000/real-time-status -H "Host: default.localhost" -s -w %{http_code} -o /dev/null
   assert_output -l 0 $'200'
 }
 
 @test "[$TEST_FILE] Check for Monitoring /status page response code 200" {
-  retry 12 5 curl_container ems :9000/status -H 'Host: default.localhost' -s -w %{http_code} -o /dev/null
+  retry 12 5 curl_container ems :9000/status -H "Host: default.localhost" -s -w %{http_code} -o /dev/null
   assert_output -l 0 $'200'
 }
 
 @test "[$TEST_FILE] Check for Monitoring /server-status page response code 200" {
-  retry 12 5 curl_container ems :9000/server-status -H 'Host: default.localhost' -s -w %{http_code} -o /dev/null
+  retry 12 5 curl_container ems :9000/server-status -H "Host: default.localhost" -s -w %{http_code} -o /dev/null
   assert_output -l 0 $'200'
 }
 
