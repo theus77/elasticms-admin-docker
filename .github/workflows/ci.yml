@@ -34,48 +34,27 @@ jobs:
         run: |
           docker network create docker_default
           docker pull appropriate/curl:latest
-          DOCKERHUB_IMAGENAME=docker.io/elasticms/admin
-          GHCR_IMAGENAME=ghcr.io/ems-project/elasticms-admin
+          IMAGENAME=docker.io/elasticms/admin
           VERSION_MAJOR_MINOR_PATCH=${{ env.ELASTICMS_ADMIN_VERSION }}
           VERSION_MAJOR_MINOR=${VERSION_MAJOR_MINOR_PATCH%.*}
           VERSION_MAJOR=${VERSION_MAJOR_MINOR%.*}
-          echo ::set-output name=dockerhub_image::${DOCKERHUB_IMAGENAME}
-          echo ::set-output name=ghcr_image::${GHCR_IMAGENAME}
+          echo ::set-output name=imagename::${IMAGENAME}
           echo ::set-output name=version_major_minor_patch::${VERSION_MAJOR_MINOR_PATCH}
           echo ::set-output name=version_major_minor::${VERSION_MAJOR_MINOR}
           echo ::set-output name=version_major::${VERSION_MAJOR}
           echo ::set-output name=build_date::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
-      - name: Fill GHCR Docker ElasticMS Admin Image metadata
-        id: meta_ghcr
+      - name: Fill Docker Image metadata
+        id: meta
         uses: crazy-max/ghaction-docker-meta@v3.6.2
         with:
-          images: "${{ steps.prep.outputs.ghcr_image }}"
-          tags: |            
+          images: "${{ steps.prep.outputs.imagename }}"
+          tags: |
             type=raw,value=${{ env.CI_SHA_SHORT }}
             type=raw,value=${{ steps.prep.outputs.version_major_minor_patch }}
             type=raw,value=${{ steps.prep.outputs.version_major_minor }}
             type=raw,value=${{ steps.prep.outputs.version_major }}
             type=raw,value=latest
-            
-      - name: Fill DockerHub Docker ElasticMS Admin Image metadata
-        id: meta_dockerhub
-        uses: crazy-max/ghaction-docker-meta@v3.6.2
-        with:
-          images: "${{ steps.prep.outputs.dockerhub_image }}"
-          tags: |            
-            type=raw,value=${{ steps.prep.outputs.version_major_minor_patch }}
-            type=raw,value=${{ steps.prep.outputs.version_major_minor }}
-            type=raw,value=${{ steps.prep.outputs.version_major }}
-            type=raw,value=latest
-
-      - name: Login to GHCR
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v1.12.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
@@ -97,8 +76,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      - name: Build GHCR ElasticMS Admin Docker Image
-        id: build_ghcr_image
+      - name: Build Docker Image
+        id: build
         uses: docker/build-push-action@v2.7.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
@@ -111,24 +90,24 @@ jobs:
             BUILD_DATE_ARG=${{ steps.prep.outputs.build_date }}
           push: false
           load: true
-          tags: ${{ steps.meta_ghcr.outputs.tags }}
-          labels: ${{ steps.meta_ghcr.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Scan GHCR ElasticMS Admin Docker Image
+      - name: Scan Docker Image
         uses: azure/container-scan@v0
         with:
-          image-name: ${{ steps.prep.outputs.ghcr_image }}:${{ env.CI_SHA_SHORT }}
+          image-name: ${{ steps.prep.outputs.imagename }}:${{ env.CI_SHA_SHORT }}
           severity-threshold: CRITICAL
 
-      - name: Test ElasticMS Admin Docker Image
+      - name: Test Docker Image
         env: 
-          ELASTICMS_ADMIN_DOCKER_IMAGE_NAME: ${{ steps.prep.outputs.ghcr_image }}:${{ env.CI_SHA_SHORT }}
+          ELASTICMS_ADMIN_DOCKER_IMAGE_NAME: ${{ steps.prep.outputs.imagename }}:${{ env.CI_SHA_SHORT }}
         run: |
           bats -r test/tests.fs.storage.bats
           bats -r test/tests.s3.storage.bats
 
-      - name: Push GHCR ElasticMS Admin Docker Image
-        id: push_ghcr
+      - name: Push Docker Image
+        id: push
         uses: docker/build-push-action@v2.7.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
@@ -140,42 +119,16 @@ jobs:
             VCS_REF_ARG=${{ env.CI_SHA }}
             BUILD_DATE_ARG=${{ steps.prep.outputs.build_date }}
           push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
-          tags: ${{ steps.meta_ghcr.outputs.tags }}
-          labels: ${{ steps.meta_ghcr.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Push DockerHub ElasticMS Admin Docker Image
-        id: push_dockerhub
-        uses: docker/build-push-action@v2.7.0
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: .
-          file: Dockerfile
-          build-args: |
-            VERSION_ARG=${{ env.ELASTICMS_ADMIN_VERSION }}
-            RELEASE_ARG=${{ env.CI_RUN_ID }}
-            VCS_REF_ARG=${{ env.CI_SHA }}
-            BUILD_DATE_ARG=${{ steps.prep.outputs.build_date }}
-          push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
-          tags: ${{ steps.meta_dockerhub.outputs.tags }}
-          labels: ${{ steps.meta_dockerhub.outputs.labels }}
-
-      - name: Check GHCR ElasticMS Admin Docker Image
+      - name: Check Docker Image
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         run: |
-          docker buildx imagetools inspect ${{ steps.prep.outputs.ghcr_image }}:${{ steps.prep.outputs.version_major_minor_patch }}
+          docker buildx imagetools inspect ${{ steps.prep.outputs.imagename }}:${{ steps.prep.outputs.version_major_minor_patch }}
 
-      - name: Check DockerHub ElasticMS Admin Docker Image
+      - name: Check Docker Images pull's
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         run: |
-          docker buildx imagetools inspect ${{ steps.prep.outputs.dockerhub_image }}:${{ steps.prep.outputs.version_major_minor_patch }}
-
-      - name: Check GHCR ElasticMS Admin Docker Images pull's
-        if: github.GHCR != 'pull_request' && github.ref == 'refs/heads/master'
-        run: |
-          docker pull ${{ steps.prep.outputs.ghcr_image }}:${{ steps.prep.outputs.version_major_minor_patch }}
-
-      - name: Check DockerHub ElasticMS Admin Docker Images pull's
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
-        run: |
-          docker pull ${{ steps.prep.outputs.dockerhub_image }}:${{ steps.prep.outputs.version_major_minor_patch }}
+          docker pull ${{ steps.prep.outputs.imagename }}:${{ steps.prep.outputs.version_major_minor_patch }}
 
