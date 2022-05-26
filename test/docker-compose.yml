@@ -1,0 +1,186 @@
+version: "2.4"
+
+services:
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - 19000:9000
+      - 19001:9001
+    environment:
+      - MINIO_ROOT_USER=${BATS_S3_ACCESS_KEY_ID}
+      - MINIO_ROOT_PASSWORD=${BATS_S3_SECRET_ACCESS_KEY}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - default
+    mem_limit: 512m
+
+  tika:
+    image: docker.io/smalswebtech/tika-server:latest
+    container_name: tika
+    networks:
+      - default
+    mem_limit: 512m
+
+  postgresql:
+    image: docker.io/postgres:12
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=${BATS_ROOT_DB_USER}
+      - POSTGRES_PASSWORD=${BATS_ROOT_DB_PASSWORD}
+      - POSTGRES_DB=${BATS_ROOT_DB_NAME}
+    networks:
+      - default
+    mem_limit: 512m
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+    container_name: es01
+    environment:
+      - "cluster.name=docker-cluster"  
+      - "node.name=es01"
+      - "discovery.seed_hosts=es02,es03"
+      - "cluster.initial_master_nodes=es01,es02,es03"
+      - "bootstrap.memory_lock=true"
+      - "node.store.allow_mmap=false"
+      - "index.store.type=niofs"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    networks:
+      - default
+    mem_limit: 1024m
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+    container_name: es02
+    environment:
+      - "cluster.name=docker-cluster"  
+      - "node.name=es02"
+      - "discovery.seed_hosts=es01,es03"
+      - "cluster.initial_master_nodes=es01,es02,es03"
+      - "bootstrap.memory_lock=true"
+      - "node.store.allow_mmap=false"
+      - "index.store.type=niofs"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - default
+    mem_limit: 1024m
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+    container_name: es03
+    environment:
+      - "cluster.name=docker-cluster"  
+      - "node.name=es03"
+      - "discovery.seed_hosts=es01,es02"
+      - "cluster.initial_master_nodes=es01,es02,es03"
+      - "bootstrap.memory_lock=true"
+      - "node.store.allow_mmap=false"
+      - "index.store.type=niofs"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - default
+    mem_limit: 1024m
+
+  redis:
+    image: centos/redis-5-centos7
+    container_name: redis
+    networks:
+      - default
+    mem_limit: 512m
+
+  elasticms:
+    image: ${BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME}
+    networks:
+      default:
+        aliases:
+          - demo-admin.localhost
+          - demo-admin-dev.localhost
+          - demo-pgsql-admin.localhost
+          - demo-pgsql-admin-dev.localhost
+    container_name: ems
+    ports:
+      - 9000:9000
+      - 9090:9090
+    environment:
+      - AWS_S3_STORAGE_BUCKET_NAME=${BATS_S3_STORAGE_BUCKET_NAME}
+      - AWS_S3_CONFIG_BUCKET_NAME=${BATS_S3_ELASTICMS_CONFIG_BUCKET_NAME}
+      - AWS_S3_ENDPOINT_URL=${BATS_S3_ENDPOINT_URL}
+      - AWS_ACCESS_KEY_ID=${BATS_S3_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${BATS_S3_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${BATS_S3_DEFAULT_REGION}
+      - PHP_FPM_MAX_CHILDREN=${BATS_PHP_FPM_MAX_CHILDREN}
+      - PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES=${BATS_PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES}
+      - CONTAINER_HEAP_PERCENT=${BATS_CONTAINER_HEAP_PERCENT}
+      - ES_ENDPOINT_URL=${BATS_ES_LOCAL_ENDPOINT_URL}
+      - TIKA_ENDPOINT_URL=${BATS_TIKA_LOCAL_ENDPOINT_URL}
+      - DB_DRIVER=${BATS_DB_DRIVER}
+      - DB_HOST=${BATS_DB_HOST}
+      - DB_PORT=${BATS_DB_PORT}
+      - DB_USER=${BATS_DB_USER}
+      - DB_PASSWORD=${BATS_DB_PASSWORD}
+      - DB_NAME=${BATS_DB_NAME}
+      - REDIS_HOST=${BATS_REDIS_HOST}
+      - REDIS_PORT=${BATS_REDIS_PORT}
+      - JOBS_ENABLED=${BATS_JOBS_ENABLED}
+      - METRICS_ENABLED=${BATS_METRICS_ENABLED}
+      - CLI_PHP_MEMORY_LIMIT=512M
+    links:
+      - ${BATS_STORAGE_SERVICE_NAME}:${BATS_STORAGE_SERVICE_NAME}
+    depends_on:
+      - ${BATS_STORAGE_SERVICE_NAME}
+    command: ["wait-for-it", "${BATS_DB_HOST}:${BATS_DB_PORT}", "--", "/usr/bin/supervisord", "-c", "/etc/supervisord/supervisord.conf"]
+    mem_limit: 512m
+
+  emsch:
+    image: docker.io/elasticms/website-skeleton:3.9
+    container_name: emsch
+    environment:
+      - APP_ENV=dev
+      - AWS_S3_STORAGE_BUCKET_NAME=${BATS_S3_STORAGE_BUCKET_NAME}
+      - AWS_S3_CONFIG_BUCKET_NAME=${BATS_S3_SKELETON_CONFIG_BUCKET_NAME}
+      - AWS_S3_ENDPOINT_URL=${BATS_S3_ENDPOINT_URL}
+      - AWS_ACCESS_KEY_ID=${BATS_S3_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${BATS_S3_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${BATS_S3_DEFAULT_REGION}
+      - PHP_FPM_MAX_CHILDREN=8
+      - PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES=64
+      - CONTAINER_HEAP_PERCENT=0.8
+      - ES_ENDPOINT_URL=${BATS_ES_LOCAL_ENDPOINT_URL}
+      - MAILER_URL=""
+      - REDIS_HOST=${BATS_REDIS_HOST}
+      - REDIS_PORT=${BATS_REDIS_PORT}
+      - ENVIRONMENT_ALIAS_BASE_PATH="../"
+      - EMSCH_ASSET_LOCAL_FOLDER="skeleton"
+      - BACKEND_URL=${BATS_ELASTICMS_SKELETON_BACKEND_URL}
+      - ADMIN_URL=${BATS_ELASTICMS_SKELETON_ADMIN_URL}
+      - VARNISH_ENABLED=true
+    volumes:
+      - ./demo/configs/admin:/opt/src/admin
+      - ./demo/configs/document:/opt/src/document
+      - ./demo/dist:/opt/src/public/skeleton:ro
+      - ./demo/skeleton:/opt/src/local/demo_pgsql_v1_preview
+      - ./demo/skeleton:/opt/src/local/demo_pgsql_v1_live
+    mem_limit: 512m
+
+networks:
+  default:
+    external:
+      name: docker_default
