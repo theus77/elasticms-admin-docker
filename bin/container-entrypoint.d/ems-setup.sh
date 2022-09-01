@@ -212,13 +212,6 @@ function configure (
     configure-supervisord-eventlistener "${_name}"
   fi
 
-  if [ -z ${METRICS_ENABLED} ] || [ "${METRICS_ENABLED}" != "true" ]; then
-    echo "Disable Prometheus Metrics ... "
-  else
-    echo "Configure Prometheus Metrics ..."
-    create-apache-vhost "metrics" "${_name}"
-  fi
-
   create-ems-folders
 
   if [[ "$DB_DRIVER" =~ ^.*pgsql$ ]]; then
