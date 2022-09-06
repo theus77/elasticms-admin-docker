@@ -150,7 +150,7 @@ services:
     mem_limit: 512m
 
   emsch:
-    image: docker.io/elasticms/website-skeleton:3.9
+    image: docker.io/elasticms/website-skeleton:latest
     container_name: emsch
     environment:
       - APP_ENV=dev
@@ -164,7 +164,7 @@ services:
       - PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES=64
       - CONTAINER_HEAP_PERCENT=0.8
       - ES_ENDPOINT_URL=${BATS_ES_LOCAL_ENDPOINT_URL}
-      - MAILER_URL=""
+      - MAILER_URL="null://null"
       - REDIS_HOST=${BATS_REDIS_HOST}
       - REDIS_PORT=${BATS_REDIS_PORT}
       - ENVIRONMENT_ALIAS_BASE_PATH="../"
