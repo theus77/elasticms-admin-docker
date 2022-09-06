@@ -130,16 +130,16 @@ jobs:
             RELEASE_ARG=${{ env.CI_RUN_ID }}
             VCS_REF_ARG=${{ env.CI_SHA }}
             BUILD_DATE_ARG=${{ steps.prep.outputs.build_date }}
-          push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
+          push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/4.0' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Check Docker Image
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/4.0'
         run: |
           docker buildx imagetools inspect ${{ steps.prep.outputs.imagename }}:${{ steps.prep.outputs.version_major_minor_patch }}
 
       - name: Check Docker Images pull's
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/4.0'
         run: |
           docker pull ${{ steps.prep.outputs.imagename }}:${{ steps.prep.outputs.version_major_minor_patch }}
