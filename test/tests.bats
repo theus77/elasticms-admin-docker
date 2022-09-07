@@ -177,23 +177,23 @@ export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NA
 
 @test "[$TEST_FILE] Create Elasticms Super Admin user." {
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} fos:user:create --super-admin ${BATS_ELASTICMS_ADMIN_USERNAME} ${BATS_ELASTICMS_ADMIN_EMAIL} ${BATS_ELASTICMS_ADMIN_PASSWORD}"
-  assert_output -l 0 "Created user ${BATS_ELASTICMS_ADMIN_USERNAME}"
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:create --super-admin ${BATS_ELASTICMS_ADMIN_USERNAME} ${BATS_ELASTICMS_ADMIN_EMAIL} ${BATS_ELASTICMS_ADMIN_PASSWORD}"
+  assert_output -l 0 ".*\[OK\] Created user ${BATS_ELASTICMS_ADMIN_USERNAME}"
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} fos:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_API"
-  assert_output -l 0 "Role \"ROLE_API\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_API"
+  assert_output -l 0 ".*\[OK\] Role \"ROLE_API\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} fos:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_COPY_PASTE"
-  assert_output -l 0 "Role \"ROLE_COPY_PASTE\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_COPY_PASTE"
+  assert_output -l 0 ".*\[OK\] Role \"ROLE_COPY_PASTE\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} fos:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_ALLOW_ALIGN"
-  assert_output -l 0 "Role \"ROLE_ALLOW_ALIGN\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_ALLOW_ALIGN"
+  assert_output -l 0 ".*\[OK\] Role \"ROLE_ALLOW_ALIGN\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} fos:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_FORM_CRM"
-  assert_output -l 0 "Role \"ROLE_FORM_CRM\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_FORM_CRM"
+  assert_output -l 0 ".*\[OK\] Role \"ROLE_FORM_CRM\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} fos:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_TASK_MANAGER"
-  assert_output -l 0 "Role \"ROLE_TASK_MANAGER\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_TASK_MANAGER"
+  assert_output -l 0 ".*\[OK\] Role \"ROLE_TASK_MANAGER\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\". This change will not apply until the user logs out and back in again."
 
 }
 
