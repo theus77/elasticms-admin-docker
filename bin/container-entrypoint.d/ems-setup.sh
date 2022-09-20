@@ -156,6 +156,9 @@ EOL
 
     ErrorLog /dev/stderr
     CustomLog /dev/stdout common
+    Header always append X-Frame-Options "${APACHE_X_FRAME_OPTIONS:-"DENY"}"
+    Header always append X-XSS-Protection "${APACHE_X_XSS_PROTECTION:-"1"}"
+    Header always append X-Content-Type-Options "${APACHE_X_CONTENT_TYPE_OPTIONS:-"nosniff"}"
     RewriteEngine On
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
