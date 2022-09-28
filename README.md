@@ -27,19 +27,20 @@ docker build --build-arg VERSION_ARG=${ELASTICMS_ADMIN_VERSION} \
 bats test/tests.bats
 ```
 
-# Environment variables  
+# Environment variables
 
-## CLI_PHP_MEMORY_LIMIT
-Refers to the PHP memory limit of the Symfony CLI. This variable can be defined per project or globally for all projects. Or even defined globally and overridden per project. To define it globally use regular environment mechanisms, such -e attribute in docker command. To defnie it per projet, define this variable in the project's Dotenv file. The default value is set to '512M'. Mor information about the [php_limit](https://www.php.net/manual/en/ini.core.php#ini.memory-limit) directive.
+| Variable Name | Description | Default | Example |
+| - | - | - | - |
+| CLI_PHP_MEMORY_LIMIT | Refers to the PHP memory limit of the Symfony CLI. This variable can be defined per project or globally for all projects. Or even defined globally and overridden per project. To define it globally use regular environment mechanisms, such -e attribute in docker command. To defnie it per projet, define this variable in the project's Dotenv file. More information about the [php_limit](https://www.php.net/manual/en/ini.core.php#ini.memory-limit) directive.  | `512M` | `2048M` |
+| JOBS_ENABLED | Use Supervisord for ems jobs running (ems:job:run). | N/A | `true` |
+| JOBS_OPTS | Add parameters to ems:job:run command.  | N/A | `-v` |
+| CHECK_ALIAS_OPTS | Add parameters to ems:check:aliases command.  | `-repair` | `-repair -v` |
+| PUID | Define the user identifier  | `1001` | `1000` |
+| APACHE_CUSTOM_ASSETS_RC | Rewrite condition that prevent request to be treated by PHP, typically bundles or assets | `^\"+.alias+\"/bundles` | `/bundles/` |
+| APACHE_X_FRAME_OPTIONS | The X-Frame-Options HTTP response header can be used to indicate whether or not a browser should be allowed to render a page in a <frame>, <iframe>, <embed> or <object>. | `SAMEORIGIN` | `DENY` |
+| APACHE_X_XSS_PROTECTION | The HTTP X-XSS-Protection response header is a feature of Internet Explorer, Chrome and Safari that stops pages from loading when they detect reflected cross-site scripting (XSS) attacks. | `1` | `1; mode=block`, `0` |
+| APACHE_X_CONTENT_TYPE_OPTIONS | The X-Content-Type-Options response HTTP header is a marker used by the server to indicate that the MIME types advertised in the Content-Type headers should be followed and not be changed. | `nosniff` | `` |
 
-## JOBS_ENABLED
-Use Supervisord for ems jobs running (ems:job:run).
-
-## JOBS_OPTS
-Add parameters to ems:job:run command.
-
-# PUID
-Define the user identifier. Default value `1001`.
 
 
 ## METRIC_ENABLED
