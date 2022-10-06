@@ -150,7 +150,7 @@ services:
     mem_limit: 512m
 
   emsch:
-    image: docker.io/elasticms/website-skeleton:latest
+    image: docker.io/elasticms/website-skeleton:4
     container_name: emsch
     environment:
       - APP_ENV=dev

@@ -177,22 +177,22 @@ export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NA
 
 @test "[$TEST_FILE] Create Elasticms Super Admin user." {
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:create --super-admin ${BATS_ELASTICMS_ADMIN_USERNAME} ${BATS_ELASTICMS_ADMIN_EMAIL} ${BATS_ELASTICMS_ADMIN_PASSWORD}"
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:create --super-admin --no-debug ${BATS_ELASTICMS_ADMIN_USERNAME} ${BATS_ELASTICMS_ADMIN_EMAIL} ${BATS_ELASTICMS_ADMIN_PASSWORD}"
   assert_output -r ".*\[OK\] Created user \"${BATS_ELASTICMS_ADMIN_USERNAME}\""
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_API"
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote --no-debug ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_API"
   assert_output -r ".*\[OK\] Role \"ROLE_API\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\".*"
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_COPY_PASTE"
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote --no-debug ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_COPY_PASTE"
   assert_output -r ".*\[OK\] Role \"ROLE_COPY_PASTE\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\".*"
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_ALLOW_ALIGN"
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote --no-debug ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_ALLOW_ALIGN"
   assert_output -r ".*\[OK\] Role \"ROLE_ALLOW_ALIGN\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\".*"
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_FORM_CRM"
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote --no-debug ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_FORM_CRM"
   assert_output -r ".*\[OK\] Role \"ROLE_FORM_CRM\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\".*"
 
-  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_TASK_MANAGER"
+  run docker exec ems sh -c "/opt/bin/${BATS_ELASTICMS_ADMIN_ENVIRONMENT} emsco:user:promote --no-debug ${BATS_ELASTICMS_ADMIN_USERNAME} ROLE_TASK_MANAGER"
   assert_output -r ".*\[OK\] Role \"ROLE_TASK_MANAGER\" has been added to user \"${BATS_ELASTICMS_ADMIN_USERNAME}\".*"
 
 }
@@ -409,10 +409,10 @@ export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NA
 
 @test "[$TEST_FILE] Rebuild Elasticms Environments." {
 
-  envs=(`docker exec ems ${BATS_ELASTICMS_ADMIN_ENVIRONMENT} ems:environment:list`)
+  envs=(`docker exec ems ${BATS_ELASTICMS_ADMIN_ENVIRONMENT} ems:environment:list --no-debug`)
 
   for e in ${envs[@]}; do
-    run docker exec ems ${BATS_ELASTICMS_ADMIN_ENVIRONMENT} ems:environment:rebuild ${e} --yellow-ok
+    run docker exec ems ${BATS_ELASTICMS_ADMIN_ENVIRONMENT} ems:environment:rebuild ${e} --no-debug --yellow-ok
     assert_output -r "The alias .* is now point to .*"
   done
 
@@ -448,7 +448,7 @@ export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NA
 
 @test "[$TEST_FILE] Align live." {
 
-  run docker exec ems ${BATS_ELASTICMS_ADMIN_ENVIRONMENT} ems:environment:align preview live --force
+  run docker exec ems ${BATS_ELASTICMS_ADMIN_ENVIRONMENT} ems:environment:align preview live --force --no-debug
   assert_output -r ".*\[OK\] Environments preview -> live were aligned.*"
 
 }
