@@ -1,4 +1,4 @@
-# elasticms-docker ![Continuous Docker Image Build](https://github.com/ems-project/elasticms-docker/workflows/Continuous%20Docker%20Image%20Build/badge.svg)
+# elasticms-admin-docker ![Continuous Docker Image Build](https://github.com/ems-project/elasticms-admin-docker/workflows/Continuous%20Docker%20Image%20Build/badge.svg)
 
 ElasticMS in Docker containers
 
