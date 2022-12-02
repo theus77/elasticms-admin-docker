@@ -50,7 +50,7 @@ export BATS_ELASTICMS_SKELETON_ENVIRONMENT="demo-preview-dev"
 
 export BATS_STORAGE_SERVICE_NAME="postgresql"
 
-export BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME="${ELASTICMS_ADMIN_DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc}"
+export BATS_DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc}"
 
 @test "[$TEST_FILE] Prepare Skeleton." {
 

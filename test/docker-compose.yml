@@ -107,7 +107,7 @@ services:
     mem_limit: 512m
 
   elasticms:
-    image: ${BATS_ELASTICMS_ADMIN_DOCKER_IMAGE_NAME}
+    image: ${BATS_DOCKER_IMAGE_NAME}
     networks:
       default:
         aliases:

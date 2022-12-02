@@ -6,7 +6,7 @@ ElasticMS in Docker containers
 Before launching the bats commands you must defined the following environment variables:
 ```dotenv
 ELASTICMS_ADMIN_VERSION=1.14.15 #the elasticms's version you want to test
-ELASTICMS_ADMIN_DOCKER_IMAGE_NAME=docker.io/elasticms/admin:rc # The ElasticMS Docker image name  
+DOCKER_IMAGE_NAME=docker.io/elasticms/admin:rc # The ElasticMS Docker image name  
 ```
 You must also install `bats`.
 
@@ -18,7 +18,7 @@ docker build --build-arg VERSION_ARG=${ELASTICMS_ADMIN_VERSION} \
              --build-arg BUILD_DATE_ARG=snapshot \
              --build-arg VCS_REF_ARG=snapshot \
              --build-arg GITHUB_TOKEN_ARG=${GITHUB_TOKEN} \
-             --tag ${ELASTICMS_ADMIN_DOCKER_IMAGE_NAME} .
+             --tag ${DOCKER_IMAGE_NAME} .
 ```
 
 # Test
