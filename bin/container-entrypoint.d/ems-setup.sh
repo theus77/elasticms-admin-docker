@@ -225,7 +225,7 @@ function configure (
   fi
 
   echo "Running Doctrine database migration (sync-metadata-storage) for [ $_name ] CMS Domain ..."
-  /opt/bin/$_name doctrine:migrations:sync-metadata-storage --no-interaction
+  /opt/bin/$_name doctrine:migrations:sync-metadata-storage --no-interaction --env=prod
   if [ $? -eq 0 ]; then
     echo "Doctrine sync metadata storage for [ $_name ] CMS Domain run successfully ..."
   else
@@ -233,7 +233,7 @@ function configure (
   fi
 
   echo "Running Doctrine database migration for [ $_name ] CMS Domain ..."
-  /opt/bin/$_name doctrine:migrations:migrate --no-interaction
+  /opt/bin/$_name doctrine:migrations:migrate --no-interaction --env=prod
   if [ $? -eq 0 ]; then
     echo "Doctrine database migration for [ $_name ] CMS Domain run successfully ..."
   else
@@ -248,7 +248,7 @@ function configure (
   fi
 
   echo "Running Elasticms assets installation to /opt/src/public folder for [ $_name ] CMS Domain ..."
-  /opt/bin/$_name asset:install /opt/src/public --symlink --no-interaction
+  /opt/bin/$_name asset:install /opt/src/public --symlink --no-interaction --env=prod
   if [ $? -eq 0 ]; then
     echo "Elasticms assets installation for [ $_name ] CMS Domain run successfully ..."
   else
