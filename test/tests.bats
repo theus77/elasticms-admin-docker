@@ -55,7 +55,7 @@ export BATS_DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc
 @test "[$TEST_FILE] Prepare Skeleton." {
 
   # TODO : tag demo git repo to retrieve always the same code
-  run git clone git@github.com:ems-project/elasticms-demo.git ${BATS_TEST_DIRNAME%/}/demo
+  run git clone --branch 5.x git@github.com:ems-project/elasticms-demo.git ${BATS_TEST_DIRNAME%/}/demo
   run mkdir -p ${BATS_TEST_DIRNAME%/}/demo/dist
   run npm install --save-dev webpack --prefix ${BATS_TEST_DIRNAME%/}/demo ${BATS_TEST_DIRNAME%/}/demo
   run npm run --prefix ${BATS_TEST_DIRNAME%/}/demo prod
