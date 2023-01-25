@@ -263,6 +263,16 @@ function configure (
     echo "Warning: something doesn't work with Elasticms cache warming up !"
   fi
 
+  if [[ ! -z ${EMS_METRIC_ENABLED} ]] && [[ ${EMS_METRIC_ENABLED,,} = true ]]; then
+    echo "Clear Elasticms metrics for [ $_name ] CMS Domain ..."
+    /opt/bin/$_name ems:metric:collect --clear
+    if [ $? -eq 0 ]; then
+      echo "Clear Elasticms metrics for [ $_name ] CMS Domain run successfully ..."
+    else
+      echo "Warning: something doesn't work with Elasticms metrics clearing !"
+    fi
+  fi
+
 )
 
 function install {
