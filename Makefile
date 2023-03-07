@@ -59,7 +59,8 @@ test-all: # Test [elasticms-admin] [prd,dev] variant Docker images
 
 _tester-%: 
 	@$(MAKE) -s _tester \
-		-e DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME}:${ELASTICMS_ADMIN_VERSION}-$*"
+		-e DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME}:${ELASTICMS_ADMIN_VERSION}-$*" \
+		-e EMS_VERSION="${ELASTICMS_ADMIN_VERSION}"
 
 _tester:
 	@bats test/tests.bats
