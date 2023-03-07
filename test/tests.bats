@@ -285,11 +285,11 @@ export BATS_DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc
 
 @test "[$TEST_FILE] Configure Elasticms Wysiwygs." {
 
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update wysiwyg-style-set DemoStyleSet
-  assert_output -r "wysiwyg-style-set DemoStyleSet with id .* has been updated"
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update wysiwyg-style-set bootstrap
+  assert_output -r "wysiwyg-style-set bootstrap with id .* has been updated"
 
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update wysiwyg-style-set RevealJS
-  assert_output -r "wysiwyg-style-set RevealJS with id .* has been updated"
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update wysiwyg-style-set revealjs
+  assert_output -r "wysiwyg-style-set revealjs with id .* has been updated"
 
   run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update wysiwyg-profile Full
   assert_output -r "wysiwyg-profile Full with id .* has been updated"
@@ -343,38 +343,63 @@ export BATS_DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc
 
 }
 
+@test "[$TEST_FILE] Configure Elasticms Forms." {
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form add_menu_item
+  assert_output -r "form add_menu_item with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form dashboard_default_search_options
+  assert_output -r "form dashboard_default_search_options with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form dashboard_sitemap_options
+  assert_output -r "form dashboard_sitemap_options with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form label
+  assert_output -r "form label with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form menu-locales
+  assert_output -r "form menu-locales with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form search_fields
+  assert_output -r "form search_fields with id .* has been updated"
+
+}
+
 @test "[$TEST_FILE] Configure Elasticms ContentTypes." {
 
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type label
-  assert_output -r "content-type label with id .* has been updated"
-
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type route
-  assert_output -r "content-type route with id .* has been updated"
-
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type template
-  assert_output -r "content-type template with id .* has been updated"
-
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type page
-  assert_output -r "content-type page with id .* has been updated"
-
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type structure
-  assert_output -r "content-type structure with id .* has been updated"
-
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type publication
-  assert_output -r "content-type publication with id .* has been updated"
-
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type slideshow
-  assert_output -r "content-type slideshow with id .* has been updated"
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type category
+  assert_output -r "content-type category with id .* has been updated"
 
   run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type form_instance
   assert_output -r "content-type form_instance with id .* has been updated"
 
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type asset
-  assert_output -r "content-type asset with id .* has been updated"
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type label
+  assert_output -r "content-type label with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type page
+  assert_output -r "content-type page with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type route
+  assert_output -r "content-type route with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type section
+  assert_output -r "content-type section with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type slideshow
+  assert_output -r "content-type slideshow with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type template
+  assert_output -r "content-type template with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type template_ems
+  assert_output -r "content-type template_ems with id .* has been updated"
 
 }
 
 @test "[$TEST_FILE] Configure Elasticms QuerySearches." {
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update query-search categories
+  assert_output -r "query-search categories with id .* has been updated"
 
   run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update query-search pages
   assert_output -r "query-search pages with id .* has been updated"
@@ -389,11 +414,11 @@ export BATS_DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc
 
 @test "[$TEST_FILE] Configure Elasticms Dashboards." {
 
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update dashboard welcome
-  assert_output -r "dashboard welcome with id .* has been updated"
-
   run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update dashboard default-search
   assert_output -r "dashboard default-search with id .* has been updated"
+
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update dashboard sitemap
+  assert_output -r "dashboard sitemap with id .* has been updated"
 
 }
 
