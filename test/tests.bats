@@ -335,6 +335,9 @@ export BATS_DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc
 
 @test "[$TEST_FILE] Configure Elasticms Environments." {
 
+  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update environment default
+  assert_output -r "environment default with id .* has been updated"
+
   run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update environment preview
   assert_output -r "environment preview with id .* has been updated"
 
