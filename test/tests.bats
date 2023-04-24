@@ -406,9 +406,6 @@ export BATS_DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-docker.io/elasticms/admin:rc
   run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type user_group
   assert_output -r "content-type user_group with id .* has been updated"
 
-  run docker exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update content-type audit
-  assert_output -r "content-type audit with id .* has been updated"
-
 }
 
 @test "[$TEST_FILE] Configure Elasticms QuerySearches." {
