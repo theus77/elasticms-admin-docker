@@ -153,14 +153,14 @@ export BATS_CONTAINER_NETWORK_NAME="${CONTAINER_NETWORK_NAME:-docker_default}"
   for file in ${BATS_TEST_DIRNAME%/}/configs/elasticms/*.env ; do
     _basename=$(basename $file)
     _name=${_basename%.*}
-    container_wait_for_log ems 15 "Install \[ ${_name} \] CMS Domain from S3 Bucket \[ ${_basename} \] file successfully ..."
-    container_wait_for_log ems 15 "Doctrine database migration for \[ ${_name} \] CMS Domain run successfully ..."
-    container_wait_for_log ems 15 "Elasticms assets installation for \[ ${_name} \] CMS Domain run successfully ..."
-    container_wait_for_log ems 15 "Elasticms warming up for \[ ${_name} \] CMS Domain run successfully ..."
+    container_wait_for_log ems 60 "Install \[ ${_name} \] CMS Domain from S3 Bucket \[ ${_basename} \] file successfully ..."
+    container_wait_for_log ems 60 "Doctrine database migration for \[ ${_name} \] CMS Domain run successfully ..."
+    container_wait_for_log ems 60 "Elasticms assets installation for \[ ${_name} \] CMS Domain run successfully ..."
+    container_wait_for_log ems 60 "Elasticms warming up for \[ ${_name} \] CMS Domain run successfully ..."
   done
 
-  container_wait_for_log ems 15 "NOTICE: ready to handle connections"
-  container_wait_for_log ems 15 "AH00292: Apache/.* \(Unix\) OpenSSL/.* configured -- resuming normal operations"
+  container_wait_for_log ems 60 "NOTICE: ready to handle connections"
+  container_wait_for_log ems 60 "AH00292: Apache/.* \(Unix\) OpenSSL/.* configured -- resuming normal operations"
 
 }
 
