@@ -59,12 +59,11 @@ export BATS_CONTAINER_NETWORK_NAME="${CONTAINER_NETWORK_NAME:-docker_default}"
 
 @test "[$TEST_FILE] Prepare Skeleton [$BATS_EMS_VERSION]." {
 
-  command rm -Rf ${BATS_TEST_DIRNAME%/}/demo
-  command git clone -b ${BATS_EMS_VERSION} git@github.com:ems-project/elasticms-demo.git ${BATS_TEST_DIRNAME%/}/demo
-  command mkdir -p ${BATS_TEST_DIRNAME%/}/demo/dist
-  command npm install --save-dev webpack --prefix ${BATS_TEST_DIRNAME%/}/demo ${BATS_TEST_DIRNAME%/}/demo
-  command npm run --prefix ${BATS_TEST_DIRNAME%/}/demo prod
-  command chmod 777 ${BATS_TEST_DIRNAME%/}/demo/skeleton
+  run git clone -b ${BATS_EMS_VERSION} git@github.com:ems-project/elasticms-demo.git ${BATS_TEST_DIRNAME%/}/demo
+  run mkdir -p ${BATS_TEST_DIRNAME%/}/demo/dist
+  run npm install --save-dev webpack --prefix ${BATS_TEST_DIRNAME%/}/demo ${BATS_TEST_DIRNAME%/}/demo
+  run npm run --prefix ${BATS_TEST_DIRNAME%/}/demo prod
+  run chmod 777 ${BATS_TEST_DIRNAME%/}/demo/skeleton
 
 }
 
