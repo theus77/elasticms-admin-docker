@@ -111,10 +111,10 @@ services:
     networks:
       default:
         aliases:
-          - demo-admin.localhost
-          - demo-admin-dev.localhost
-          - demo-pgsql-admin.localhost
-          - demo-pgsql-admin-dev.localhost
+          - demo-admin
+          - demo-admin-dev
+          - demo-pgsql-admin
+          - demo-pgsql-admin-dev
     container_name: ems
     ports:
       - 9000:9000
@@ -142,10 +142,6 @@ services:
       - JOBS_ENABLED=${BATS_JOBS_ENABLED}
       - METRICS_ENABLED=${BATS_METRICS_ENABLED}
       - CLI_PHP_MEMORY_LIMIT=512M
-    links:
-      - ${BATS_STORAGE_SERVICE_NAME}:${BATS_STORAGE_SERVICE_NAME}
-    depends_on:
-      - ${BATS_STORAGE_SERVICE_NAME}
     command: ["wait-for-it", "${BATS_DB_HOST}:${BATS_DB_PORT}", "--", "/usr/bin/supervisord", "-c", "/etc/supervisord/supervisord.conf"]
     mem_limit: 512m
 
