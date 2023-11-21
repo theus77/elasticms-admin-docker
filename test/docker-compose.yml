@@ -13,10 +13,10 @@ services:
       - MINIO_ROOT_PASSWORD=${BATS_S3_SECRET_ACCESS_KEY}
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+      test: [ "CMD", "mc", "ready", "local" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - default
     mem_limit: 512m
