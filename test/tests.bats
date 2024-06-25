@@ -369,6 +369,9 @@ export BATS_CONTAINER_NETWORK_NAME="${CONTAINER_NETWORK_NAME:-docker_default}"
   run ${BATS_CONTAINER_ENGINE} exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form dashboard_sitemap_options
   assert_output -r "form dashboard_sitemap_options with id .* has been updated"
 
+  run ${BATS_CONTAINER_ENGINE} exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form display
+  assert_output -r "form display with id .* has been updated"
+
   run ${BATS_CONTAINER_ENGINE} exec emsch ${BATS_ELASTICMS_SKELETON_ENVIRONMENT} ems:admin:update form label
   assert_output -r "form label with id .* has been updated"
 
