@@ -31,7 +31,7 @@ jobs:
         uses: FranzDiebold/github-env-vars-action@v2
 
       - name: Fill PHP Version Environment Variable
-        uses: c-py/action-dotenv-to-setenv@v4
+        uses: c-py/action-dotenv-to-setenv@v5
         with:
           env-file: .build.env
 
@@ -65,7 +65,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
@@ -90,7 +90,7 @@ jobs:
 
       - name: Build "${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}" Docker Image
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
@@ -106,7 +106,7 @@ jobs:
           outputs: type=docker,dest=/tmp/builded.tar
 
       - name: Upload "${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}" Docker image artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.image-variant }}
           path: /tmp/builded.tar
@@ -137,7 +137,7 @@ jobs:
           chmod 777 test/demo/skeleton
 
       - name: Setup BATS testing framework
-        uses: zebby76/setup-bats@v1
+        uses: zebby76/setup-bats@v2
         with:
           bats-version: 1.2.1
 
@@ -145,7 +145,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Download "${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}" Docker image artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.image-variant }}
           path: /tmp
@@ -156,7 +156,7 @@ jobs:
           docker image ls -a
 
       - name: Scan "${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}" Docker image
-        uses: anchore/scan-action@v3
+        uses: anchore/scan-action@v4
         id: scan
         with:
           image: ${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}
@@ -178,6 +178,27 @@ jobs:
         env:
           IMAGE_VARIANT: ${{ matrix.image-variant }}
 
+      - name: Free Disk Space
+        run: |
+          echo "Disk space before post-build cleanup:"
+          df -h
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/lib/android/sdk/ndk
+          sudo rm -rf /usr/share/dotnet
+          sudo apt-get clean
+          echo "Disk space after post-build cleanup:"
+          df -h
+  
+#      - name: Setup tmate session
+#        #if: ${{ failure() }}
+#        uses: mxschmitt/action-tmate@v3
+#        timeout-minutes: 30
+#        with:
+#          detached: true
+#          sudo: true
+#          limit-access-to-actor: true
+
       - name: Test "${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}" Docker Image
         env:
           DOCKER_IMAGE_NAME: ${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}
@@ -185,7 +206,7 @@ jobs:
           CONTAINER_ENGINE: docker
         run: |
           docker network create docker_default
-          docker pull appropriate/curl:latest
+          docker pull docker.io/curlimages/curl:8.1.2
           bats -r test/tests.bats
 
   sign-dev:
@@ -200,11 +221,16 @@ jobs:
 
     steps:
 
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y notary
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Download "${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}" Docker image artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.image-variant }}
           path: /tmp
@@ -272,11 +298,16 @@ jobs:
 
     steps:
 
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y notary
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Download "${{ needs.init.outputs.docker-image-name }}:${{ needs.init.outputs.github-ci-sha-short }}-${{ matrix.image-variant }}" Docker image artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.image-variant }}
           path: /tmp
@@ -389,7 +420,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [sign-prd,sign-dev]
     steps:
-      - uses: joutvhu/delete-artifact@v1
+      - uses: geekyeggo/delete-artifact@v5
         with:
-          name: |
-            ${{ matrix.image-variant }}
+          name: ${{ matrix.image-variant }}
+          failOnError: false
