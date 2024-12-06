@@ -70,18 +70,23 @@ set -o allexport
 source /tmp/$_instance_name
 set +o allexport
 
-if [ \${1:-list} = sql ] || [ \${1:-list} = dump ] ; then
+if [ \${1:-list} = sql ] || [ \${1:-list} = dump ] || [ \${1:-list} = forms ] ; then
   if [ \${DB_DRIVER:-mysql} = mysql ] ; then
     if [ \${1:-list} = sql ] ; then
       mysql --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$(urlencode.py \$DB_PASSWORD) \$DB_NAME
+    elif [ \${1:-list} = forms ] ; then
+      mysqldump --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$(urlencode.py \$DB_PASSWORD) \$DB_NAME form_submission form_submission_file
     else
-      mysqldump --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$(urlencode.py \$DB_PASSWORD) \$DB_NAME
+      mysqldump --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$(urlencode.py \$DB_PASSWORD) --ignore-table=form_submission --ignore-table=form_submission_file \$DB_NAME
+      mysqldump --port=\$DB_PORT --host=\$DB_HOST --user=\$DB_USER --password=\$(urlencode.py \$DB_PASSWORD) --no-data \$DB_NAME
     fi;
   elif [ \${DB_DRIVER:-mysql} = pgsql ] ; then
     if [ \${1:-list} = sql ] ; then
       psql postgresql://\${DB_USER}:\$(urlencode.py \$DB_PASSWORD)@\${DB_HOST//,/:\${DB_PORT},}:\${DB_PORT}/\${DB_NAME}?connect_timeout=\${DB_CONNECTION_TIMEOUT:-30} \${@:2}
+    elif [ \${1:-list} = forms ] ; then
+      pg_dump postgresql://\${DB_USER}:\$(urlencode.py \$DB_PASSWORD)@\${DB_HOST//,/:\${DB_PORT},}:\${DB_PORT}/\${DB_NAME}?connect_timeout=\${DB_CONNECTION_TIMEOUT:-30} -w --clean -Fp -O --table=form_submission --table=form_submission_file --schema=\${DB_SCHEMA:-public} | sed "/^\(DROP\|ALTER\|CREATE\) SCHEMA.*\$/d"
     else
-      pg_dump postgresql://\${DB_USER}:\$(urlencode.py \$DB_PASSWORD)@\${DB_HOST//,/:\${DB_PORT},}:\${DB_PORT}/\${DB_NAME}?connect_timeout=\${DB_CONNECTION_TIMEOUT:-30} -w --clean -Fp -O --schema=\${DB_SCHEMA:-public} | sed "/^\(DROP\|ALTER\|CREATE\) SCHEMA.*\$/d"
+      pg_dump postgresql://\${DB_USER}:\$(urlencode.py \$DB_PASSWORD)@\${DB_HOST//,/:\${DB_PORT},}:\${DB_PORT}/\${DB_NAME}?connect_timeout=\${DB_CONNECTION_TIMEOUT:-30} -w --clean -Fp -O --exclude-table-data=form_submission --exclude-table-data=form_submission_file --schema=\${DB_SCHEMA:-public} | sed "/^\(DROP\|ALTER\|CREATE\) SCHEMA.*\$/d"
     fi;
   else
     echo Driver \$DB_DRIVER not supported
